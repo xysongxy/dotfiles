@@ -1,0 +1,413 @@
+{
+	// Place your snippets for markdown_latex_combined here. Each snippet is defined under a snippet name and has a prefix, body and 
+	// description. The prefix is what is used to trigger the snippet and the body will be expanded and inserted. Possible variables are:
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. Placeholders with the 
+	// same ids are connected.
+	// Example:
+	// "Print to console": {
+	// 	"prefix": "log",
+	// 	"body": [
+	// 		"console.log('$1');",
+	// 		"$2"
+	// 	],
+	// 	"description": "Log output to console"
+	// }
+	"dollar math": {
+		//"scope": "tex,latex",
+		"prefix": "mm", // this is what you type in the editor to get the snippet suggestion
+		"body": ["\\$$1\\$"],
+	},
+	"Double dollar math": {
+		//"scope": "tex,latex",
+		"prefix": "mmm", // this is what you type in the editor to get the snippet suggestion
+		"body": ["\\$$",
+				 "$0",
+				 "\\$$"],
+	},
+
+	"Equation Environment": {
+		"prefix": "BEQ",
+		"body": [
+			"\\begin{equation}",
+			"\t$0",
+			"\\end{equation}"
+		],
+		"description": "Insert equation environment"
+	},
+	"Starred Equation Environment": {
+		"prefix": "BSEQ",
+		"body": [
+			"\\begin{equation*}",
+			"\t$0",
+			"\\end{equation*}"
+		],
+		"description": "Insert starred equation environment"
+	},
+	"Align Environment": {
+		"prefix": "BAL",
+		"body": [
+			"\\begin{align}",
+			"\t$0",
+			"\\end{align}"
+		],
+		"description": "Insert align environment"
+	},
+	"Starred Align Environment": {
+		"prefix": "BSAL",
+		"body": [
+			"\\begin{align*}",
+			"\t$0",
+			"\\end{align*}"
+		],
+		"description": "Insert starred align environment"
+	},
+	"Itemize Environment": {
+		"prefix": "BIT",
+		"body": [
+			"\\begin{itemize}",
+			"\t\\item $0",
+			"\\end{itemize}"
+		],
+		"description": "Insert itemize environment"
+	},
+	"Enumerate Environment": {
+		"prefix": "BEN",
+		"body": [
+			"\\begin{enumerate}",
+			"\t\\item $0",
+			"\\end{enumerate}"
+		],
+		"description": "Insert enumerate environment"
+	},
+	"Split Environment": {
+		"prefix": "BSPL",
+		"body": [
+			"\\begin{split}",
+			"\t$0",
+			"\\end{split}"
+		],
+		"description": "Insert split environment"
+	},
+	"Cases Environment": {
+		"prefix": "BCAS",
+		"body": [
+			"\\begin{cases}",
+			"\t$0",
+			"\\end{cases}"
+		],
+		"description": "Insert cases environment"
+	},
+	"Frame Environment": {
+		"prefix": "BFR",
+		"body": [
+			"\\begin{frame}{${1:Frame Title}}",
+			"\t$0",
+			"\\end{frame}"
+		],
+		"description": "Insert frame environment"
+	},
+	"Figure Environment": {
+		"prefix": "BFI",
+		"body": [
+			"\\begin{figure}[${1:h}]",
+			"\t\\centering",
+			"\t\\includegraphics[width=${2:0.8}\\textwidth]{${3:figure}}",
+			"\t\\caption{${4:caption}}",
+			"\t\\label{fig:${5:label}}",
+			"\\end{figure}"
+		],
+		"description": "Insert figure environment"
+	},
+	"Part": {
+        "prefix": "SPA",
+        "body": [
+            "\\part{${1:Part Title}}",
+            "$0"
+        ],
+        "description": "Insert part sectioning command"
+    },
+    "Chapter": {
+        "prefix": "SCH",
+        "body": [
+            "\\chapter{${1:Chapter Title}}",
+            "$0"
+        ],
+        "description": "Insert chapter sectioning command"
+    },
+    "Section": {
+        "prefix": "SSE",
+        "body": [
+            "\\section{${1:Section Title}}",
+            "$0"
+        ],
+        "description": "Insert section sectioning command"
+    },
+    "Subsection": {
+        "prefix": "SSS",
+        "body": [
+            "\\subsection{${1:Subsection Title}}",
+            "$0"
+        ],
+        "description": "Insert subsection sectioning command"
+    },
+    "Subsubsection": {
+        "prefix": "SS2",
+        "body": [
+            "\\subsubsection{${1:Subsubsection Title}}",
+            "$0"
+        ],
+        "description": "Insert subsubsection sectioning command"
+    },
+    "Paragraph": {
+        "prefix": "SPG",
+        "body": [
+            "\\paragraph{${1:Paragraph Title}}",
+            "$0"
+        ],
+        "description": "Insert paragraph sectioning command"
+    },
+    "Subparagraph": {
+        "prefix": "SSP",
+        "body": [
+            "\\subparagraph{${1:Subparagraph Title}}",
+            "$0"
+        ],
+        "description": "Insert subparagraph sectioning command"
+    },
+
+
+	"@a": { "prefix": "@a", "body": "\\alpha", "description": "Greek letter alpha" },
+	"@b": { "prefix": "@b", "body": "\\beta", "description": "Greek letter beta" },
+	"@c": { "prefix": "@c", "body": "\\chi", "description": "Greek letter chi" },
+	"@d": { "prefix": "@d", "body": "\\delta", "description": "Greek letter delta" },
+	"@e": { "prefix": "@e", "body": "\\epsilon", "description": "Greek letter epsilon" },
+	"@f": { "prefix": "@f", "body": "\\phi", "description": "Greek letter phi" },
+	"@g": { "prefix": "@g", "body": "\\gamma", "description": "Greek letter gamma" },
+	"@h": { "prefix": "@h", "body": "\\eta", "description": "Greek letter eta" },
+	"@i": { "prefix": "@i", "body": "\\iota", "description": "Greek letter iota" },
+	"@k": { "prefix": "@k", "body": "\\kappa", "description": "Greek letter kappa" },
+	"@l": { "prefix": "@l", "body": "\\lambda", "description": "Greek letter lambda" },
+	"@m": { "prefix": "@m", "body": "\\mu", "description": "Greek letter mu" },
+	"@n": { "prefix": "@n", "body": "\\nu", "description": "Greek letter nu" },
+	"@p": { "prefix": "@p", "body": "\\pi", "description": "Greek letter pi" },
+	"@q": { "prefix": "@q", "body": "\\theta", "description": "Greek letter theta" },
+	"@r": { "prefix": "@r", "body": "\\rho", "description": "Greek letter rho" },
+	"@s": { "prefix": "@s", "body": "\\sigma", "description": "Greek letter sigma" },
+	"@t": { "prefix": "@t", "body": "\\tau", "description": "Greek letter tau" },
+	"@u": { "prefix": "@u", "body": "\\upsilon", "description": "Greek letter upsilon" },
+	"@o": { "prefix": "@o", "body": "\\omega", "description": "Greek letter omega" },
+	"@&": { "prefix": "@&", "body": "\\wedge", "description": "Logical and (wedge)" },
+	"@x": { "prefix": "@x", "body": "\\xi", "description": "Greek letter xi" },
+	"@y": { "prefix": "@y", "body": "\\psi", "description": "Greek letter psi" },
+	"@z": { "prefix": "@z", "body": "\\zeta", "description": "Greek letter zeta" },
+	"@D": { "prefix": "@D", "body": "\\Delta", "description": "Greek letter Delta" },
+	"@F": { "prefix": "@F", "body": "\\Phi", "description": "Greek letter Phi" },
+	"@G": { "prefix": "@G", "body": "\\Gamma", "description": "Greek letter Gamma" },
+	"@Q": { "prefix": "@Q", "body": "\\Theta", "description": "Greek letter Theta" },
+	"@L": { "prefix": "@L", "body": "\\Lambda", "description": "Greek letter Lambda" },
+	"@X": { "prefix": "@X", "body": "\\Xi", "description": "Greek letter Xi" },
+	"@Y": { "prefix": "@Y", "body": "\\Psi", "description": "Greek letter Psi" },
+	"@S": { "prefix": "@S", "body": "\\Sigma", "description": "Greek letter Sigma" },
+	"@U": { "prefix": "@U", "body": "\\Upsilon", "description": "Greek letter Upsilon" },
+	"@W": { "prefix": "@W", "body": "\\Omega", "description": "Greek letter Omega" },
+	"@ve": { "prefix": "@ve", "body": "\\varepsilon", "description": "Greek letter varepsilon" },
+	"@vf": { "prefix": "@vf", "body": "\\varphi", "description": "Greek letter varphi" },
+	"@vs": { "prefix": "@vs", "body": "\\varsigma", "description": "Greek letter varsigma" },
+	"@vq": { "prefix": "@vq", "body": "\\vartheta", "description": "Greek letter vartheta" },
+
+	
+	"@(": { "prefix": "@1", "body": "\\left( $1 \\right)", "description": "Left and right parentheses" },
+	"@{": { "prefix": "@3", "body": "\\left\\{ $1 \\right\\\\}", "description": "Left and right curly braces" },
+	"@[": { "prefix": "@4", "body": "\\left[ $1 \\right]", "description": "Left and right brackets" },
+	"__": { "prefix": "__", "body": "_{$1}", "description": "Subscript" },
+	"**": { "prefix": "**", "body": "^{$1}", "description": "Superscript" },
+	"...": { "prefix": "...", "body": "\\dots", "description": "Ellipsis" },
+	"@.": { "prefix": "@.", "body": "\\cdot", "description": "Dot product" },
+	"@8": { "prefix": "@8", "body": "\\infty", "description": "Infinity symbol" },
+	"@6": { "prefix": "@6", "body": "\\partial", "description": "Partial derivative symbol" },
+	"@/": { "prefix": "@/", "body": "\\frac{$1}{$2}", "description": "Fraction" },
+	"@%": { "prefix": "@%", "body": "\\frac{$1}{$2}", "description": "Fraction" },
+	"@^": { "prefix": "@^", "body": "\\hat{$1}", "description": "Hat notation" },
+	"@td": { "prefix": "@td", "body": "\\tilde{$1}", "description": "Tilde notation" },
+	"@_": { "prefix": "@_", "body": "\\bar{$1}", "description": "Bar notation" },
+	"@@": { "prefix": "@@", "body": "\\circ", "description": "Circle notation" },
+	"@0": { "prefix": "@0", "body": "^\\circ", "description": "Degree symbol" },
+	"@;": { "prefix": "@;", "body": "\\dot{$1}", "description": "Dot notation" },
+	"@:": { "prefix": "@:", "body": "\\ddot{$1}", "description": "Double dot notation" },
+	"@=": { "prefix": "@=", "body": "\\equiv", "description": "Equivalence symbol" },
+	"@*": { "prefix": "@*", "body": "\\times", "description": "Multiplication symbol" },
+	"@<": { "prefix": "@<", "body": "\\leq", "description": "Less than or equal to symbol" },
+	"@>": { "prefix": "@>", "body": "\\geq", "description": "Greater than or equal to symbol" },
+	"@2": { "prefix": "@2", "body": "\\sqrt{$1}", "description": "Square root" },
+	"@I": { "prefix": "@I", "body": "\\int_{$1}^{$2}", "description": "Integral with limits" },
+	"@|": { "prefix": "@|", "body": "\\Big |", "description": "Big absolute value symbol" },
+	"@\\": { "prefix": "@\\", "body": "\\setminus", "description": "Set minus symbol" },
+	"@+": { "prefix": "@+", "body": "\\bigcup", "description": "Union symbol" },
+	"@-": { "prefix": "@-", "body": "\\bigcap", "description": "Intersection symbol" },
+	"@,": { "prefix": "@,", "body": "\\nonumber", "description": "Non-numbered equation" },
+	"@el": { "prefix": "@el", "body": "\\ell", "description": "Ell" },
+
+	
+	
+	"Math Roman": {
+		"prefix": "MRM",
+		"body": "\\mathrm{${1}}",
+		"description": "Mathematical Roman font"
+	},
+	"Math Sans Serif": {
+		"prefix": "MBF",
+		"body": "\\mathsf{${1}}",
+		"description": "Mathematical sans-serif font"
+	},
+	"Math Bold": {
+		"prefix": "MBF",
+		"body": "\\mathbf{${1}}",
+		"description": "Mathematical bold font"
+	},
+	"Math Blackboard Bold": {
+		"prefix": "MBB",
+		"body": "\\mathbb{${1}}",
+		"description": "Mathematical blackboard bold font"
+	},
+	"Math Calligraphic": {
+		"prefix": "MCA",
+		"body": "\\mathcal{${1}}",
+		"description": "Mathematical calligraphic font"
+	},
+	"Math Italic": {
+		"prefix": "MIT",
+		"body": "\\mathit{${1}}",
+		"description": "Mathematical italic font"
+	},
+	"Math Typewriter": {
+		"prefix": "MTT",
+		"body": "\\mathtt{${1}}",
+		"description": "Mathematical typewriter font"
+	},
+
+
+	"Font Size Selection": {
+		"prefix": "fontsize",
+		"body": "\\fontsize{${1:10pt}}{${2:12pt}}\\selectfont",
+		"description": "Opens font size selection"
+	},
+	"Text Normal": {
+		"prefix": "FNO",
+		"body": "\\textnormal{${1}}",
+		"description": "Normal text font"
+	},
+	"Text Roman": {
+		"prefix": "FRM",
+		"body": "\\textrm{${1}}",
+		"description": "Roman text font"
+	},
+	"Emphasized Text": {
+		"prefix": "FEM",
+		"body": "\\emph{${1}}",
+		"description": "Emphasized text"
+	},
+	"Sans Serif Text": {
+		"prefix": "FSF",
+		"body": "\\textsf{${1}}",
+		"description": "Sans-serif text"
+	},
+	"Typewriter Text": {
+		"prefix": "FTT",
+		"body": "\\texttt{${1}}",
+		"description": "Typewriter text"
+	},
+	"Italic Text": {
+		"prefix": "FIT",
+		"body": "\\textit{${1}}",
+		"description": "Italic text"
+	},
+	"Slanted Text": {
+		"prefix": "FSL",
+		"body": "\\textsl{${1}}",
+		"description": "Slanted text"
+	},
+	"Small Caps Text": {
+		"prefix": "FSC",
+		"body": "\\textsc{${1}}",
+		"description": "Small caps text"
+	},
+	"Underlined Text": {
+		"prefix": "FUL",
+		"body": "\\underline{${1}}",
+		"description": "Underlined text"
+	},
+	"Uppercase Text": {
+		"prefix": "FUC",
+		"body": "\\uppercase{${1}}",
+		"description": "Uppercase text"
+	},
+	"Lowercase Text": {
+		"prefix": "FLC",
+		"body": "\\lowercase{${1}}",
+		"description": "Lowercase text"
+	},
+	"Bold Text": {
+		"prefix": "FBF",
+		"body": "\\textbf{${1}}",
+		"description": "Bold text"
+	},
+	"Superscript Text": {
+		"prefix": "FSS",
+		"body": "\\textsuperscript{${1}}",
+		"description": "Superscript text"
+	},
+	"Subscript Text": {
+		"prefix": "FBS",
+		"body": "\\textsubscript{${1}}",
+		"description": "Subscript text"
+	},
+	"Summation": {
+    "prefix": "sum",
+    "body": [
+      "\\sum_{${1:}}^{${3:}}"
+    ],
+    "description": "Insert a summation formula"
+  	},
+	"Product": {
+    "prefix": "prod",
+    "body": [
+      "\\prod_{${1:}}^{${3:}}"
+    ],
+	"description": "Insert a product formula"
+	},
+	"Integral": {
+		"prefix": "int",
+		"body": [
+		"\\int_{${1:}}^{${2:}}"
+		],
+		"description": "Insert an integral"
+	},
+	"Double Integral": {
+		"prefix": "dblint",
+		"body": [
+		"\\iint_{${1:}}"
+		],
+		"description": "Insert a double integral"
+	},
+	"Limit": {
+		"prefix": "lim",
+		"body": [
+		"\\lim_{${1:}}"
+		],
+		"description": "Insert a limit"
+	},
+	"Derivative": {
+		"prefix": "deriv",
+		"body": [
+		"\\frac{d${1:}}{d${2:}}"
+		],
+		"description": "Insert a derivative"
+	},
+	"Partial Derivative": {
+		"prefix": "partial",
+		"body": [
+		"\\frac{\\partial ${1:}}{\\partial ${2:}}"
+		],
+		"description": "Insert a partial derivative"
+	},
+}

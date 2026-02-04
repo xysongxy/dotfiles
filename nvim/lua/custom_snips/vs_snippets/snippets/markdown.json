@@ -1,0 +1,385 @@
+{
+  "dollar math": {
+    "scope": "markdown",
+    "prefix": "mm",
+    "body": ["\\$$1\\$"]
+  },
+  "Double dollar math": {
+    "scope": "markdown",
+    "prefix": "mmm",
+    "body": ["\\$$", "$0", "\\$$"]
+  },
+
+  "Equation Environment": {
+    "scope": "markdown",
+    "prefix": "BEQ",
+    "body": ["\\begin{equation}", "\t$0", "\\end{equation}"],
+    "description": "Insert equation environment"
+  },
+  "Starred Equation Environment": {
+    "scope": "markdown",
+    "prefix": "BSEQ",
+    "body": ["\\begin{equation*}", "\t$0", "\\end{equation*}"],
+    "description": "Insert starred equation environment"
+  },
+  "Align Environment": {
+    "scope": "markdown",
+    "prefix": "BAL",
+    "body": ["\\begin{align}", "\t$0", "\\end{align}"],
+    "description": "Insert align environment"
+  },
+  "Starred Align Environment": {
+    "scope": "markdown",
+    "prefix": "BSAL",
+    "body": ["\\begin{align*}", "\t$0", "\\end{align*}"],
+    "description": "Insert starred align environment"
+  },
+  "Itemize Environment": {
+    "scope": "markdown",
+    "prefix": "BIT",
+    "body": ["\\begin{itemize}", "\t\\item $0", "\\end{itemize}"],
+    "description": "Insert itemize environment"
+  },
+  "Enumerate Environment": {
+    "scope": "markdown",
+    "prefix": "BEN",
+    "body": ["\\begin{enumerate}", "\t\\item $0", "\\end{enumerate}"],
+    "description": "Insert enumerate environment"
+  },
+  "Split Environment": {
+    "scope": "markdown",
+    "prefix": "BSPL",
+    "body": ["\\begin{split}", "\t$0", "\\end{split}"],
+    "description": "Insert split environment"
+  },
+  "Cases Environment": {
+    "scope": "markdown",
+    "prefix": "BCAS",
+    "body": ["\\begin{cases}", "\t$0", "\\end{cases}"],
+    "description": "Insert cases environment"
+  },
+  "Frame Environment": {
+    "scope": "markdown",
+    "prefix": "BFR",
+    "body": ["\\begin{frame}{${1:Frame Title}}", "\t$0", "\\end{frame}"],
+    "description": "Insert frame environment"
+  },
+  "Figure Environment": {
+    "scope": "markdown",
+    "prefix": "BFI",
+    "body": [
+      "\\begin{figure}[${1:h}]",
+      "\t\\centering",
+      "\t\\includegraphics[width=${2:0.8}\\textwidth]{${3:figure}}",
+      "\t\\caption{${4:caption}}",
+      "\t\\label{fig:${5:label}}",
+      "\\end{figure}"
+    ],
+    "description": "Insert figure environment"
+  },
+
+  "Part": {
+    "scope": "markdown",
+    "prefix": "SPA",
+    "body": ["\\part{${1:Part Title}}", "$0"],
+    "description": "Insert part sectioning command"
+  },
+  "Chapter": {
+    "scope": "markdown",
+    "prefix": "SCH",
+    "body": ["\\chapter{${1:Chapter Title}}", "$0"],
+    "description": "Insert chapter sectioning command"
+  },
+  "Section": {
+    "scope": "markdown",
+    "prefix": "SSE",
+    "body": ["\\section{${1:Section Title}}", "$0"],
+    "description": "Insert section sectioning command"
+  },
+  "Subsection": {
+    "scope": "markdown",
+    "prefix": "SSS",
+    "body": ["\\subsection{${1:Subsection Title}}", "$0"],
+    "description": "Insert subsection sectioning command"
+  },
+  "Subsubsection": {
+    "scope": "markdown",
+    "prefix": "SS2",
+    "body": ["\\subsubsection{${1:Subsubsection Title}}", "$0"],
+    "description": "Insert subsubsection sectioning command"
+  },
+  "Paragraph": {
+    "scope": "markdown",
+    "prefix": "SPG",
+    "body": ["\\paragraph{${1:Paragraph Title}}", "$0"],
+    "description": "Insert paragraph sectioning command"
+  },
+  "Subparagraph": {
+    "scope": "markdown",
+    "prefix": "SSP",
+    "body": ["\\subparagraph{${1:Subparagraph Title}}", "$0"],
+    "description": "Insert subparagraph sectioning command"
+  },
+
+  "za": { "scope": "markdown", "prefix": "za", "body": "\\alpha" },
+  "zb": { "scope": "markdown", "prefix": "zb", "body": "\\beta" },
+  "zc": { "scope": "markdown", "prefix": "zc", "body": "\\chi" },
+  "zd": { "scope": "markdown", "prefix": "zd", "body": "\\delta" },
+  "ze": { "scope": "markdown", "prefix": "ze", "body": "\\epsilon" },
+  "zf": { "scope": "markdown", "prefix": "zf", "body": "\\phi" },
+  "zg": { "scope": "markdown", "prefix": "zg", "body": "\\gamma" },
+  "zh": { "scope": "markdown", "prefix": "zh", "body": "\\eta" },
+  "zi": { "scope": "markdown", "prefix": "zi", "body": "\\iota" },
+  "zk": { "scope": "markdown", "prefix": "zk", "body": "\\kappa" },
+  "zl": { "scope": "markdown", "prefix": "zl", "body": "\\lambda" },
+  "zm": { "scope": "markdown", "prefix": "zm", "body": "\\mu" },
+  "zn": { "scope": "markdown", "prefix": "zn", "body": "\\nu" },
+  "zo": { "scope": "markdown", "prefix": "zo", "body": "\\omega" },
+  "zp": { "scope": "markdown", "prefix": "zp", "body": "\\pi" },
+  "zq": { "scope": "markdown", "prefix": "zq", "body": "\\theta" },
+  "zr": { "scope": "markdown", "prefix": "zr", "body": "\\rho" },
+  "zs": { "scope": "markdown", "prefix": "zs", "body": "\\sigma" },
+  "zt": { "scope": "markdown", "prefix": "zt", "body": "\\tau" },
+  "zu": { "scope": "markdown", "prefix": "zu", "body": "\\upsilon" },
+  "zx": { "scope": "markdown", "prefix": "zx", "body": "\\xi" },
+  "zy": { "scope": "markdown", "prefix": "zy", "body": "\\psi" },
+  "zz": { "scope": "markdown", "prefix": "zz", "body": "\\zeta" },
+
+  "zD": { "scope": "markdown", "prefix": "zD", "body": "\\Delta" },
+  "zF": { "scope": "markdown", "prefix": "zF", "body": "\\Phi" },
+  "zG": { "scope": "markdown", "prefix": "zG", "body": "\\Gamma" },
+  "zQ": { "scope": "markdown", "prefix": "zQ", "body": "\\Theta" },
+  "zL": { "scope": "markdown", "prefix": "zL", "body": "\\Lambda" },
+  "zX": { "scope": "markdown", "prefix": "zX", "body": "\\Xi" },
+  "zY": { "scope": "markdown", "prefix": "zY", "body": "\\Psi" },
+  "zS": { "scope": "markdown", "prefix": "zS", "body": "\\Sigma" },
+  "zU": { "scope": "markdown", "prefix": "zU", "body": "\\Upsilon" },
+  "zW": { "scope": "markdown", "prefix": "zW", "body": "\\Omega" },
+
+  "zve": { "scope": "markdown", "prefix": "zve", "body": "\\varepsilon" },
+  "zvf": { "scope": "markdown", "prefix": "zvf", "body": "\\varphi" },
+  "zvs": { "scope": "markdown", "prefix": "zvs", "body": "\\varsigma" },
+  "zvq": { "scope": "markdown", "prefix": "zvq", "body": "\\vartheta" },
+
+  "zlp": { "scope": "markdown", "prefix": "zlp", "body": "\\left(${1}\\right)" },
+  "zlb": { "scope": "markdown", "prefix": "zlb", "body": "\\left[${1}\\right]" },
+  "zlc": { "scope": "markdown", "prefix": "zlc", "body": "\\left\\{${1}\\right\\}" },
+
+  "zfr": { "scope": "markdown", "prefix": "zfr", "body": "\\frac{${1}}{${2}}" },
+  "zsq": { "scope": "markdown", "prefix": "zsq", "body": "\\sqrt{${1}}" },
+  "zint": { "scope": "markdown", "prefix": "zint", "body": "\\int_{${1}}^{${2}}" },
+
+  "zhat": { "scope": "markdown", "prefix": "zhat", "body": "\\hat{${1}}" },
+  "zbar": { "scope": "markdown", "prefix": "zbar", "body": "\\bar{${1}}" },
+  "ztd": { "scope": "markdown", "prefix": "ztd", "body": "\\tilde{${1}}" },
+  "zdot": { "scope": "markdown", "prefix": "zdot", "body": "\\dot{${1}}" },
+  "zddot": { "scope": "markdown", "prefix": "zddot", "body": "\\ddot{${1}}" },
+  "zck": { "scope": "markdown", "prefix": "zck", "body": "\\check{${1}}" },
+
+  "zcd": { "scope": "markdown", "prefix": "zcd", "body": "\\cdot" },
+  "zin": { "scope": "markdown", "prefix": "zin", "body": "\\infty" },
+  "zpd": { "scope": "markdown", "prefix": "zpd", "body": "\\partial" },
+  "zcirc": { "scope": "markdown", "prefix": "zcirc", "body": "\\circ" },
+  "zdeg": { "scope": "markdown", "prefix": "zdeg", "body": "^\\circ" },
+
+  "ztimes": { "scope": "markdown", "prefix": "ztimes", "body": "\\times" },
+  "zeq": { "scope": "markdown", "prefix": "zeq", "body": "\\equiv" },
+  "zle": { "scope": "markdown", "prefix": "zle", "body": "\\leq" },
+  "zge": { "scope": "markdown", "prefix": "zge", "body": "\\geq" },
+
+  "zcup": { "scope": "markdown", "prefix": "zcup", "body": "\\bigcup" },
+  "zcap": { "scope": "markdown", "prefix": "zcap", "body": "\\bigcap" },
+  "zsm": { "scope": "markdown", "prefix": "zsm", "body": "\\setminus" },
+  "zand": { "scope": "markdown", "prefix": "zand", "body": "\\wedge" },
+  "znon": { "scope": "markdown", "prefix": "znon", "body": "\\nonumber" },
+
+  "z_": { "scope": "markdown", "prefix": "z_", "body": "_{${1}}" },
+  "z^": { "scope": "markdown", "prefix": "z^", "body": "^{${1}}" },
+  "zdots": { "scope": "markdown", "prefix": "zdots", "body": "\\dots" },
+
+  "zmm": { "scope": "markdown", "prefix": "zmm", "body": "$${1}$$" },
+
+  "Math Roman": {
+    "scope": "markdown",
+    "prefix": "MRM",
+    "body": "\\mathrm{${1}}",
+    "description": "Mathematical Roman font"
+  },
+  "Math Sans Serif": {
+    "scope": "markdown",
+    "prefix": "MBF",
+    "body": "\\mathsf{${1}}",
+    "description": "Mathematical sans-serif font"
+  },
+  "Math Bold": {
+    "scope": "markdown",
+    "prefix": "MBF",
+    "body": "\\mathbf{${1}}",
+    "description": "Mathematical bold font"
+  },
+  "Math Blackboard Bold": {
+    "scope": "markdown",
+    "prefix": "MBB",
+    "body": "\\mathbb{${1}}",
+    "description": "Mathematical blackboard bold font"
+  },
+  "Math Calligraphic": {
+    "scope": "markdown",
+    "prefix": "MCA",
+    "body": "\\mathcal{${1}}",
+    "description": "Mathematical calligraphic font"
+  },
+  "Math Italic": {
+    "scope": "markdown",
+    "prefix": "MIT",
+    "body": "\\mathit{${1}}",
+    "description": "Mathematical italic font"
+  },
+  "Math Typewriter": {
+    "scope": "markdown",
+    "prefix": "MTT",
+    "body": "\\mathtt{${1}}",
+    "description": "Mathematical typewriter font"
+  },
+
+  "Font Size Selection": {
+    "scope": "markdown",
+    "prefix": "fontsize",
+    "body": "\\fontsize{${1:10pt}}{${2:12pt}}\\selectfont",
+    "description": "Opens font size selection"
+  },
+  "Text Normal": { "scope": "markdown", "prefix": "FNO", "body": "\\textnormal{${1}}", "description": "Normal text font" },
+  "Text Roman": { "scope": "markdown", "prefix": "FRM", "body": "\\textrm{${1}}", "description": "Roman text font" },
+  "Emphasized Text": { "scope": "markdown", "prefix": "FEM", "body": "\\emph{${1}}", "description": "Emphasized text" },
+  "Sans Serif Text": { "scope": "markdown", "prefix": "FSF", "body": "\\textsf{${1}}", "description": "Sans-serif text" },
+  "Typewriter Text": { "scope": "markdown", "prefix": "FTT", "body": "\\texttt{${1}}", "description": "Typewriter text" },
+  "Italic Text": { "scope": "markdown", "prefix": "FIT", "body": "\\textit{${1}}", "description": "Italic text" },
+  "Slanted Text": { "scope": "markdown", "prefix": "FSL", "body": "\\textsl{${1}}", "description": "Slanted text" },
+  "Small Caps Text": { "scope": "markdown", "prefix": "FSC", "body": "\\textsc{${1}}", "description": "Small caps text" },
+  "Underlined Text": { "scope": "markdown", "prefix": "FUL", "body": "\\underline{${1}}", "description": "Underlined text" },
+  "Uppercase Text": { "scope": "markdown", "prefix": "FUC", "body": "\\uppercase{${1}}", "description": "Uppercase text" },
+  "Lowercase Text": { "scope": "markdown", "prefix": "FLC", "body": "\\lowercase{${1}}", "description": "Lowercase text" },
+  "Bold Text": { "scope": "markdown", "prefix": "FBF", "body": "\\textbf{${1}}", "description": "Bold text" },
+  "Superscript Text": { "scope": "markdown", "prefix": "FSS", "body": "\\textsuperscript{${1}}", "description": "Superscript text" },
+  "Subscript Text": { "scope": "markdown", "prefix": "FBS", "body": "\\textsubscript{${1}}", "description": "Subscript text" },
+
+  "Summation": { "scope": "markdown", "prefix": "sum", "body": ["\\sum_{${1:}}^{${3:}}"], "description": "Insert a summation formula" },
+  "Product": { "scope": "markdown", "prefix": "prod", "body": ["\\prod_{${1:}}^{${3:}}"], "description": "Insert a product formula" },
+  "Integral": { "scope": "markdown", "prefix": "int", "body": ["\\int_{${1:}}^{${2:}}"], "description": "Insert an integral" },
+  "Double Integral": { "scope": "markdown", "prefix": "dblint", "body": ["\\iint_{${1:}}"], "description": "Insert a double integral" },
+  "Limit": { "scope": "markdown", "prefix": "lim", "body": ["\\lim_{${1:}}"], "description": "Insert a limit" },
+  "Derivative": { "scope": "markdown", "prefix": "deriv", "body": ["\\frac{d${1:}}{d${2:}}"], "description": "Insert a derivative" },
+  "Partial Derivative": { "scope": "markdown", "prefix": "partial", "body": ["\\frac{\\partial ${1:}}{\\partial ${2:}}"], "description": "Insert a partial derivative" },
+
+  "Insert Current Date": {
+    "scope": "markdown",
+    "prefix": "date",
+    "body": ["${CURRENT_YEAR}-${CURRENT_MONTH}-${CURRENT_DATE}"],
+    "description": "Insert the current date in YYYY-MM-DD format"
+  },
+
+  "Note Template": {
+    "scope": "markdown",
+    "prefix": "tn",
+    "body": [
+      "---",
+      "author: Xiangyu Song",
+      "tags: ",
+      "created: ${CURRENT_YEAR}-${CURRENT_MONTH}-${CURRENT_DATE} ${CURRENT_HOUR}:${CURRENT_MINUTE}",
+      "modified: ",
+      "output:",
+      "    pdf_document:",
+      "        latex_engine: pdflatex",
+      "fontsize: 11pt",
+      "header-includes:",
+      "    - \\\\usepackage{mathpazo}",
+      "    - \\\\usepackage{amsmath}",
+      "    - \\\\usepackage{geometry}",
+      "    - \\\\geometry{letterpaper, margin=1in}",
+      "    - \\\\usepackage{setspace}",
+      "    - \\\\doublespacing",
+      "---"
+    ],
+    "description": "Note Template"
+  },
+
+  "Method Paper Template": {
+    "scope": "markdown",
+    "prefix": "tm",
+    "body": [
+      "---",
+      "author: Xiangyu Song",
+      "title: ",
+      "tags: ",
+      "created: ${CURRENT_YEAR}-${CURRENT_MONTH}-${CURRENT_DATE} ${CURRENT_HOUR}:${CURRENT_MINUTE}",
+      "modified: ",
+      "journal: ",
+      "abstract: ",
+      "---",
+      "",
+      "## Puzzles",
+      "",
+      "## Argument",
+      "",
+      "## Methods",
+      "",
+      "## Data",
+      ""
+    ],
+    "description": "Method Paper Template"
+  },
+
+  "Empirical Paper Template": {
+    "scope": "markdown",
+    "prefix": "te",
+    "body": [
+      "---",
+      "author: Xiangyu Song",
+      "title: ",
+      "tags: ",
+      "created: ${CURRENT_YEAR}-${CURRENT_MONTH}-${CURRENT_DATE} ${CURRENT_HOUR}:${CURRENT_MINUTE}",
+      "modified: ",
+      "journal: ",
+      "abstract: ",
+      "---",
+      "",
+      "## Puzzles",
+      "",
+      "## Argument",
+      "",
+      "## Methods",
+      "",
+      "## Data",
+      "",
+      "## Questions",
+      ""
+    ],
+    "description": "Empirical Paper Template"
+  },
+
+  "Formal Paper Template": {
+    "scope": "markdown",
+    "prefix": "tf",
+    "body": [
+      "---",
+      "author: Xiangyu Song",
+      "title: ",
+      "tags: ",
+      "created: ${CURRENT_YEAR}-${CURRENT_MONTH}-${CURRENT_DATE} ${CURRENT_HOUR}:${CURRENT_MINUTE}",
+      "modified: ",
+      "journal: ",
+      "abstract: ",
+      "---",
+      "",
+      "## Puzzles",
+      "",
+      "## Argument",
+      "",
+      "## Model",
+      "",
+      "## Questions",
+      ""
+    ],
+    "description": "Formal Paper Template"
+  }
+}

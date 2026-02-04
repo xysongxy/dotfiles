@@ -1,0 +1,27 @@
+{
+  "name": "my-nvim-snippets",
+  "contributes": {
+    "snippets": [
+      {
+        "language": ["tex", "plaintex"],
+        "path": "./snippets/latex.json"
+      },
+      {
+        "language": ["bibtex", "bib"],
+        "path": "./snippets/bibtex.json"
+      },
+      {
+        "language": ["r"],
+        "path": "./snippets/r.json"
+      },
+      {
+        "language": ["markdown"],
+        "path": "./snippets/markdown.json"
+      },
+      {
+        "language": ["Rmarkdown", "rmarkdown"],
+        "path": "./snippets/rmarkdown.json"
+      }
+    ]
+  }
+}
