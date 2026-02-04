@@ -444,6 +444,39 @@ au("FileType", {
 })
 
 ---------------------------------------------------------------------
+-- R Markdown (.Rmd/.qmd): Cmd+I → Insert R code chunk
+---------------------------------------------------------------------
+
+au("FileType", {
+  group = aug("RmdChunkInsert", { clear = true }),
+  pattern = { "rmd", "quarto" },
+  callback = function(ev)
+    vim.keymap.set({ "n", "i" }, "<D-I>", function()
+      -- leave insert mode if needed
+      vim.cmd("stopinsert")
+
+      local win = 0
+      local buf = ev.buf
+      local row = vim.api.nvim_win_get_cursor(win)[1] -- 1-indexed
+
+      -- Insert chunk *below* current line
+      vim.api.nvim_buf_set_lines(buf, row, row, true, {
+        "```{r}",
+        "",
+        "```",
+      })
+
+      -- Put cursor on the blank line inside the chunk
+      vim.api.nvim_win_set_cursor(win, { row + 2, 0 })
+
+      -- optional: start typing immediately
+      vim.cmd("startinsert")
+    end, { buffer = ev.buf, silent = true, desc = "Insert R code chunk (Cmd+Shift+I)" })
+  end,
+})
+
+
+---------------------------------------------------------------------
 -- R Markdown (.Rmd/.qmd): Cmd+Shift+K → Save, Knit, then Open
 ---------------------------------------------------------------------
 au("FileType", {
