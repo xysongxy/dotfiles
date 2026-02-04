@@ -25,8 +25,9 @@ opt.sidescrolloff = 8
 opt.wrap = true
 opt.linebreak = true
 opt.breakindent = true
-opt.breakindentopt = "shift:2"
+opt.breakindentopt = "shift:4"
 opt.showbreak = "↳ "
+
 
 
 
@@ -94,3 +95,7 @@ g.loaded_ruby_provider = 0
 
 -- Add 'A' to shortmess to ignore the "ATTENTION" message when a swap file exists
 opt.shortmess:append("A")
+
+
+-- tex indent
+g.vimtex_indent_enabled = 1

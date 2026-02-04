@@ -41,3 +41,6 @@ link_config "$DOTFILES/ghostty" "$HOME/.config/ghostty"
 
 # Link Git (uncomment when ready)
 # link_config "$DOTFILES/git/.gitconfig" "$HOME/.gitconfig"
+
+
+echo "✅ Linking complete!"
