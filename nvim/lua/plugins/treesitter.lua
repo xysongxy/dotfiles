@@ -17,7 +17,7 @@ configs.setup({
       return ok2 and stats and stats.size > 100 * 1024
     end,
   },
-  indent = { enable = false },
+  indent = { enable = true },
 })
 
 -- Treat RMarkdown as markdown treesitter parser

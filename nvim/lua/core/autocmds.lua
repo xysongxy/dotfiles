@@ -157,6 +157,78 @@ au("BufDelete", {
 })
 
 ---------------------------------------------------------------------
+-- R / Rmd convenience insertions
+--   - ⌘⇧M : insert %>%  (pipe)
+--   - ⌥-  : insert <-   (assignment)
+---------------------------------------------------------------------
+au("FileType", {
+  group = aug("RInsertHelpers", { clear = true }),
+  pattern = { "r", "rmd", "rmarkdown", "quarto" },
+  callback = function(ev)
+    local function bmap(modes, lhs, rhs, desc)
+      vim.keymap.set(modes, lhs, rhs, { buffer = ev.buf, silent = true, desc = desc })
+    end
+
+    local function insert_text(txt)
+      -- Works in both normal/insert: use `i`-mode insertion when possible
+      if vim.fn.mode():match("i") then
+        vim.api.nvim_put({ txt }, "c", true, true)
+      else
+        -- normal mode: put after cursor
+        vim.api.nvim_put({ txt }, "c", true, true)
+      end
+    end
+
+    -- ⌘⇧M → %>% (pipe)
+    bmap({ "i", "n" }, "<D-M>", function()
+      insert_text(" %>% ")
+    end, "R: insert %>% pipe")
+
+    -- ⌥- → <- (assignment)
+    bmap({ "i", "n" }, "<M-->", function()
+      insert_text(" <- ")
+    end, "R: insert <- assignment")
+  end,
+})
+
+---------------------------------------------------------------------
+-- R / Rmd: RStudio-ish hanging indent when breaking after "("
+---------------------------------------------------------------------
+au("FileType", {
+  group = aug("RHangingIndent", { clear = true }),
+  pattern = { "r", "rmd", "rmarkdown", "quarto" },
+  callback = function(ev)
+    -- Only affect insert-mode Enter in these buffers
+    vim.keymap.set("i", "<CR>", function()
+      local row, col = unpack(vim.api.nvim_win_get_cursor(0)) -- row is 1-indexed, col is 0-indexed
+      local line = vim.api.nvim_get_current_line()
+
+      -- Consider text up to cursor
+      local before = line:sub(1, col)
+
+      -- Find the last "(" before cursor
+      local last_open = before:match(".*()%(.*") -- returns position of last "("
+      if last_open then
+        -- Heuristic: if there are more "(" than ")" before cursor, we're inside an open paren
+        local opens  = select(2, before:gsub("%(", ""))
+        local closes = select(2, before:gsub("%)", ""))
+        if opens > closes then
+          -- Align to the column right after the "(" (RStudio-style hanging indent)
+          local target_col = last_open -- 1-indexed position of "(" in Lua string
+          local spaces = string.rep(" ", target_col) -- after "("
+          return "\n" .. spaces
+        end
+      end
+
+      -- Fallback: keep Neovim's normal behavior
+      return "\n"
+    end, { buffer = ev.buf, expr = true, silent = true, desc = "R: hanging indent on Enter" })
+  end,
+})
+
+
+
+---------------------------------------------------------------------
 -- R / RMarkdown / Quarto
 -- Goal:
 --   - ⌥Enter sends each *logical expression* in the current chunk

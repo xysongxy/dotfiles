@@ -25,8 +25,8 @@ opt.sidescrolloff = 8
 opt.wrap = true
 opt.linebreak = true
 opt.breakindent = true
-opt.breakindentopt = "shift:4"
-opt.showbreak = "↳ "
+-- opt.breakindentopt = "shift:4"
+-- opt.showbreak = "↳ "
 
 
 
@@ -98,4 +98,5 @@ opt.shortmess:append("A")
 
 
 -- tex indent
-g.vimtex_indent_enabled = 1
+g.vimtex_indent_enabled = 0
+g.tex_indent_items = 0
