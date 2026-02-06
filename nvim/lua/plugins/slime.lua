@@ -457,6 +457,33 @@ local function ensure_repl(lang)
 end
 
 -----------------------------------------------------------------------
+-- REPL follow (auto-scroll after multi-line sends)
+-----------------------------------------------------------------------
+local function scroll_repl_to_bottom(lang)
+  local buf = get_bufnr(lang)
+  if not buf_is_valid(buf) then return end
+
+  local win = win_showing_buf(buf)
+  if not win then return end
+
+  local last = vim.api.nvim_buf_line_count(buf)
+  if last < 1 then return end
+
+  -- Move cursor + scroll to bottom inside that window without stealing focus
+  pcall(vim.api.nvim_win_call, win, function()
+    pcall(vim.api.nvim_win_set_cursor, win, { last, 0 })
+    vim.cmd("normal! G")
+    vim.cmd("normal! zb")
+  end)
+end
+
+local function follow_repl(lang)
+  -- terminal output is async; do it after it lands
+  vim.defer_fn(function() scroll_repl_to_bottom(lang) end, 20)
+  vim.defer_fn(function() scroll_repl_to_bottom(lang) end, 80)
+end
+
+-----------------------------------------------------------------------
 -- Send to REPL
 -----------------------------------------------------------------------
 local function send_to_repl(lang, text)
@@ -481,12 +508,18 @@ local function send_to_repl(lang, text)
 
   -- Send, but tolerate rare race where channel dies after ensure_repl
   local ok = pcall(vim.api.nvim_chan_send, jobid, payload)
-  if not ok then
-    set_jobid(lang, nil)
-    set_bufnr(lang, nil)
-    jobid = ensure_repl(lang)
-    if jobid then
-      pcall(vim.api.nvim_chan_send, jobid, payload)
+  if ok then
+    follow_repl(lang)
+    return
+  end
+
+  set_jobid(lang, nil)
+  set_bufnr(lang, nil)
+  jobid = ensure_repl(lang)
+  if jobid then
+    local ok2 = pcall(vim.api.nvim_chan_send, jobid, payload)
+    if ok2 then
+      follow_repl(lang)
     end
   end
 end
