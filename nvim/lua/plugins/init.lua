@@ -366,7 +366,7 @@ require("lazy").setup({
 
   {
     "gutsavgupta/nvim-gemini-companion",
-    commit = "e08d1ba",
+    -- commit = "e08d1ba",
     dependencies = { "nvim-lua/plenary.nvim" },
     event = "VeryLazy",
     config = function()
