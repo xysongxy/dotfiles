@@ -191,40 +191,82 @@ au("FileType", {
   end,
 })
 
+
 ---------------------------------------------------------------------
--- R / Rmd: RStudio-ish hanging indent when breaking after "("
+-- R / Rmd: RStudio-like Enter inside ()
+--   - If between () -> split to 3 lines, indent 4 spaces, cursor on indented line
+--   - If line continues inside open ( ... ) -> newline + indent 4 spaces
 ---------------------------------------------------------------------
 au("FileType", {
-  group = aug("RHangingIndent", { clear = true }),
+  group = aug("RSmartEnter", { clear = true }),
   pattern = { "r", "rmd", "rmarkdown", "quarto" },
   callback = function(ev)
-    -- Only affect insert-mode Enter in these buffers
+    local INDENT = 4
+
+    local function r_line_continues(before)
+      local s = (before:gsub("%s+$", ""))
+      if s == "" then return false end
+      if s:match("%+$") then return true end
+      if s:match(",%s*$") then return true end
+      if s:match("%%>%%%s*$") then return true end
+      if s:match("|>%s*$") then return true end
+      return false
+    end
+
+    local function has_unmatched_open_paren(before)
+      local opens  = select(2, before:gsub("%(", ""))
+      local closes = select(2, before:gsub("%)", ""))
+      return opens > closes
+    end
+
     vim.keymap.set("i", "<CR>", function()
-      local row, col = unpack(vim.api.nvim_win_get_cursor(0)) -- row is 1-indexed, col is 0-indexed
+      local bufnr = ev.buf
+      local row, col0 = unpack(vim.api.nvim_win_get_cursor(0)) -- row 1-based, col 0-based
       local line = vim.api.nvim_get_current_line()
 
-      -- Consider text up to cursor
-      local before = line:sub(1, col)
+      local before = line:sub(1, col0)
+      local after  = line:sub(col0 + 1)
 
-      -- Find the last "(" before cursor
-      local last_open = before:match(".*()%(.*") -- returns position of last "("
-      if last_open then
-        -- Heuristic: if there are more "(" than ")" before cursor, we're inside an open paren
-        local opens  = select(2, before:gsub("%(", ""))
-        local closes = select(2, before:gsub("%)", ""))
-        if opens > closes then
-          -- Align to the column right after the "(" (RStudio-style hanging indent)
-          local target_col = last_open -- 1-indexed position of "(" in Lua string
-          local spaces = string.rep(" ", target_col) -- after "("
-          return "\n" .. spaces
-        end
+      -- base indent of current line
+      local base_ws = line:match("^(%s*)") or ""
+      local inner_ws = base_ws .. string.rep(" ", INDENT)
+
+      -- Case 1: cursor between "(" and ")": lm(|) -> lm(\n    |\n)
+      if before:sub(-1) == "(" and after:sub(1, 1) == ")" then
+        vim.api.nvim_buf_set_text(
+          bufnr,
+          row - 1, col0,
+          row - 1, col0,
+          { "", inner_ws, "" }
+        )
+        -- cursor on the indented middle line
+        vim.api.nvim_win_set_cursor(0, { row + 1, #inner_ws })
+        return
       end
 
-      -- Fallback: keep Neovim's normal behavior
-      return "\n"
-    end, { buffer = ev.buf, expr = true, silent = true, desc = "R: hanging indent on Enter" })
+      -- Case 2: inside parens and line continues (ends with +, , , %>%, |>):
+      -- indent 4 spaces relative to line start
+      if r_line_continues(before) and has_unmatched_open_paren(before) then
+        vim.api.nvim_buf_set_text(
+          bufnr,
+          row - 1, col0,
+          row - 1, col0,
+          { "", inner_ws }
+        )
+        vim.api.nvim_win_set_cursor(0, { row + 1, #inner_ws })
+        return
+      end
+
+      -- Default: plain newline (keep default behavior)
+      vim.api.nvim_feedkeys(
+        vim.api.nvim_replace_termcodes("<CR>", true, false, true),
+        "n",
+        false
+      )
+    end, { buffer = ev.buf, silent = true, desc = "R: RStudio-like Enter (indent 4)" })
   end,
 })
+
 
 
 
