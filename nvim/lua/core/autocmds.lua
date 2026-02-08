@@ -191,7 +191,6 @@ au("FileType", {
   end,
 })
 
-
 ---------------------------------------------------------------------
 -- R / Rmd: RStudio-like Enter inside ()
 --   - If between () -> split to 3 lines, indent 4 spaces, cursor on indented line
@@ -266,8 +265,6 @@ au("FileType", {
     end, { buffer = ev.buf, silent = true, desc = "R: RStudio-like Enter (indent 4)" })
   end,
 })
-
-
 
 
 ---------------------------------------------------------------------

@@ -9,7 +9,7 @@ npairs.setup({
   map_bs = true, 
   map_c_h = true,
   map_c_w = true,
-  map_cr = true,
+  map_cr = true, 
 })
 
 -- Explicitly add rules for LaTeX to force them to work in math mode
