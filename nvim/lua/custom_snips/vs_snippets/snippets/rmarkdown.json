@@ -161,9 +161,9 @@
   "zvs": { "scope": "rmarkdown", "prefix": "zvs", "body": "\\varsigma" },
   "zvq": { "scope": "rmarkdown", "prefix": "zvq", "body": "\\vartheta" },
 
-  "zlp": { "scope": "rmarkdown", "prefix": "zlp", "body": "\\left(${1}\\right)" },
-  "zlb": { "scope": "rmarkdown", "prefix": "zlb", "body": "\\left[${1}\\right]" },
-  "zlc": { "scope": "rmarkdown", "prefix": "zlc", "body": "\\left\\{${1}\\right\\}" },
+  "zlp": { "scope": "rmarkdown", "prefix": "zlp", "body": "\\left( ${1} \\right)" },
+  "zlb": { "scope": "rmarkdown", "prefix": "zlb", "body": "\\left[ ${1} \\right]" },
+  "zlc": { "scope": "rmarkdown", "prefix": "zlc", "body": "\\\\left\\\\{ ${1} \\\\right\\\\}" },
 
   "zfr": { "scope": "rmarkdown", "prefix": "zfr", "body": "\\frac{${1}}{${2}}" },
   "zsq": { "scope": "rmarkdown", "prefix": "zsq", "body": "\\sqrt{${1}}" },

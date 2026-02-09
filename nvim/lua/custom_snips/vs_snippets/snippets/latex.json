@@ -39,9 +39,9 @@
   "zvs": { "scope": "tex,latex,plaintex", "prefix": "zvs", "body": "\\varsigma" },
   "zvq": { "scope": "tex,latex,plaintex", "prefix": "zvq", "body": "\\vartheta" },
 
-  "zlp": { "scope": "tex,latex,plaintex", "prefix": "zlp", "body": "\\left(${1}\\right)" },
-  "zlb": { "scope": "tex,latex,plaintex", "prefix": "zlb", "body": "\\left[${1}\\right]" },
-  "zlc": { "scope": "tex,latex,plaintex", "prefix": "zlc", "body": "\\left\\{${1}\\right\\}" },
+  "zlp": { "scope": "tex,latex,plaintex", "prefix": "zlp", "body": "\\left( ${1} \\right)" },
+  "zlb": { "scope": "tex,latex,plaintex", "prefix": "zlb", "body": "\\left[ ${1} \\right]" },
+  "zlc": { "scope": "tex,latex,plaintex", "prefix": "zlc", "body": "\\\\left\\\\{ ${1} \\\\right\\\\}" },
 
   "zfr": { "scope": "tex,latex,plaintex", "prefix": "zfr", "body": "\\frac{${1}}{${2}}" },
   "zsq": { "scope": "tex,latex,plaintex", "prefix": "zsq", "body": "\\sqrt{${1}}" },
