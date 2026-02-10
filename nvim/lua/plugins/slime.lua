@@ -637,6 +637,7 @@ function M.setup()
         send_current_and_advance(lang)
       end, opts)
 
+
       vim.keymap.set("x", "<D-CR>", function()
         -- leave visual mode
         vim.api.nvim_feedkeys(

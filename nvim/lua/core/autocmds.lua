@@ -170,11 +170,9 @@ au("FileType", {
     end
 
     local function insert_text(txt)
-      -- Works in both normal/insert: use `i`-mode insertion when possible
       if vim.fn.mode():match("i") then
         vim.api.nvim_put({ txt }, "c", true, true)
       else
-        -- normal mode: put after cursor
         vim.api.nvim_put({ txt }, "c", true, true)
       end
     end
@@ -192,15 +190,46 @@ au("FileType", {
 })
 
 ---------------------------------------------------------------------
--- R / Rmd: RStudio-like Enter inside ()
---   - If between () -> split to 3 lines, indent 4 spaces, cursor on indented line
---   - If line continues inside open ( ... ) -> newline + indent 4 spaces
+-- R / Rmd / Quarto: indentation defaults (RStudio-ish)
+---------------------------------------------------------------------
+au("FileType", {
+  group = aug("RIndentDefaults", { clear = true }),
+  pattern = { "r", "rmd", "rmarkdown", "quarto" },
+  callback = function()
+    vim.opt_local.expandtab = true
+    vim.opt_local.shiftwidth = 4
+    vim.opt_local.tabstop = 4
+    vim.opt_local.softtabstop = 4
+    vim.opt_local.autoindent = true
+
+    -- keep your existing tweak
+    vim.opt_local.cinoptions:append("(0")
+  end,
+})
+
+---------------------------------------------------------------------
+-- R / Rmd: RStudio-like Enter inside (), {}, []
+-- Goals:
+--   1) lm(|)   -> lm(\n    |\n)
+--   2) lm(x|)  -> lm(x\n    |\n)          (when autopairs already inserted the close)
+--   3) Inside an open pair and you end a line with + , %>% |> etc:
+--        \n    |  (continuation indent)
+-- Default Enter must behave like normal (no "jump 2 lines").
 ---------------------------------------------------------------------
 au("FileType", {
   group = aug("RSmartEnter", { clear = true }),
   pattern = { "r", "rmd", "rmarkdown", "quarto" },
   callback = function(ev)
-    local INDENT = 4
+    local PAIRS = {
+      ["("] = ")",
+      ["{"] = "}",
+      ["["] = "]",
+    }
+    local CLOSE_TO_OPEN = {
+      [")"] = "(",
+      ["}"] = "{",
+      ["]"] = "[",
+    }
 
     local function r_line_continues(before)
       local s = (before:gsub("%s+$", ""))
@@ -212,10 +241,31 @@ au("FileType", {
       return false
     end
 
-    local function has_unmatched_open_paren(before)
-      local opens  = select(2, before:gsub("%(", ""))
-      local closes = select(2, before:gsub("%)", ""))
+    local function count_char(str, pat)
+      return select(2, str:gsub(pat, ""))
+    end
+
+    local function has_unmatched_open(before, open_ch)
+      local close_ch = PAIRS[open_ch]
+      if not close_ch then return false end
+      local opens = count_char(before, "%" .. open_ch)
+      local closes = count_char(before, "%" .. close_ch)
       return opens > closes
+    end
+
+    local function any_unmatched_open(before)
+      for open_ch, _ in pairs(PAIRS) do
+        if has_unmatched_open(before, open_ch) then
+          return true
+        end
+      end
+      return false
+    end
+
+    local function first_close_char(after)
+      -- first non-space char, if it's a close delimiter we care about
+      local c = after:match("^%s*([%)%}%]])")
+      return c
     end
 
     vim.keymap.set("i", "<CR>", function()
@@ -226,26 +276,44 @@ au("FileType", {
       local before = line:sub(1, col0)
       local after  = line:sub(col0 + 1)
 
-      -- base indent of current line
       local base_ws = line:match("^(%s*)") or ""
-      local inner_ws = base_ws .. string.rep(" ", INDENT)
+      local sw = vim.bo[bufnr].shiftwidth
+      if not sw or sw <= 0 then sw = 4 end
+      local inner_ws = base_ws .. string.rep(" ", sw)
 
-      -- Case 1: cursor between "(" and ")": lm(|) -> lm(\n    |\n)
-      if before:sub(-1) == "(" and after:sub(1, 1) == ")" then
+      local last_before = before:sub(-1)
+      local close_after = first_close_char(after)
+
+      -- Case 1: exactly between matching pair: (|) / {|} / [|]
+      if PAIRS[last_before] and close_after == PAIRS[last_before] then
         vim.api.nvim_buf_set_text(
           bufnr,
           row - 1, col0,
           row - 1, col0,
-          { "", inner_ws, "" }
+          { "", inner_ws, base_ws }
         )
-        -- cursor on the indented middle line
         vim.api.nvim_win_set_cursor(0, { row + 1, #inner_ws })
         return
       end
 
-      -- Case 2: inside parens and line continues (ends with +, , , %>%, |>):
-      -- indent 4 spaces relative to line start
-      if r_line_continues(before) and has_unmatched_open_paren(before) then
+      -- Case 2: inside a pair and cursor is right before a closing delimiter
+      -- e.g. lm(x|) where after begins with ")"
+      if close_after and any_unmatched_open(before) then
+        local open_needed = CLOSE_TO_OPEN[close_after]
+        if open_needed and has_unmatched_open(before, open_needed) then
+          vim.api.nvim_buf_set_text(
+            bufnr,
+            row - 1, col0,
+            row - 1, col0,
+            { "", inner_ws, base_ws }
+          )
+          vim.api.nvim_win_set_cursor(0, { row + 1, #inner_ws })
+          return
+        end
+      end
+
+      -- Case 3: continuation inside any open pair (+, , , %>% , |> at end of "before")
+      if r_line_continues(before) and any_unmatched_open(before) then
         vim.api.nvim_buf_set_text(
           bufnr,
           row - 1, col0,
@@ -256,24 +324,22 @@ au("FileType", {
         return
       end
 
-      -- Default: plain newline (keep default behavior)
+      -- Default: real newline (no double-jump)
       vim.api.nvim_feedkeys(
         vim.api.nvim_replace_termcodes("<CR>", true, false, true),
-        "n",
+        "in",
         false
       )
-    end, { buffer = ev.buf, silent = true, desc = "R: RStudio-like Enter (indent 4)" })
+    end, { buffer = ev.buf, silent = true, desc = "R: RStudio-like Enter for (), {}, []" })
   end,
 })
-
 
 ---------------------------------------------------------------------
 -- R / RMarkdown / Quarto
 -- Goal:
 --   - ⌥Enter sends each *logical expression* in the current chunk
 --     using bracketed paste (so it does NOT execute line-by-line)
---   - ⌘Enter sends the *logical expression* at cursor (multi-line statement)
---   - Reuse radian on the right (no slime.lua edits)
+--   - Disable Cmd+Enter in INSERT (safety: if anything else mapped it)
 ---------------------------------------------------------------------
 au("FileType", {
   group = aug("RKeymaps", { clear = true }),
@@ -283,8 +349,11 @@ au("FileType", {
       vim.keymap.set(modes, lhs, rhs, { buffer = ev.buf, silent = true, desc = desc })
     end
 
+    -- If some other plugin mapped Cmd+Enter in insert, remove it for these buffers.
+    pcall(vim.keymap.del, "i", "<D-CR>", { buffer = ev.buf })
+
     -----------------------------------------------------------------
-    -- 0) Shared helpers for parsing expressions
+    -- helpers for parsing expressions
     -----------------------------------------------------------------
     local function is_blank(line)
       return line:match("^%s*$") ~= nil
@@ -313,20 +382,10 @@ au("FileType", {
       line = strip_strings_and_comments(line)
       local s = line:match("^%s*(.-)%s*$") or ""
       if s == "" then return false end
-
       if s:match("[,%+%-%*/%^=]$") then return true end
       if s:match("<%-%s*$") or s:match("=%s*$") then return true end
       if s:match("%%>%%%s*$") or s:match("|>%s*$") then return true end
       if s:match("%($") or s:match("%[$") or s:match("%{$") then return true end
-
-      return false
-    end
-
-    local function starts_with_operator_or_pipe(line)
-      local s = (line:match("^%s*(.-)%s*$") or "")
-      if s:match("^[%+%-%*/%^,]") then return true end
-      if s:match("^%%>%%") or s:match("^|>") then return true end
-      if s:match("^%$") or s:match("^@") then return true end
       return false
     end
 
@@ -388,7 +447,6 @@ au("FileType", {
         else
           table.insert(cur, line)
           bal = bal + balance_delta(line)
-
           if bal == 0 and not looks_like_continuation(line) then
             flush()
           end
@@ -408,49 +466,11 @@ au("FileType", {
       return ok and info and info.id == jobid and info.stream ~= nil
     end
 
-    local function buf_is_valid(buf)
-      return buf and type(buf) == "number" and buf > 0 and vim.api.nvim_buf_is_valid(buf)
-    end
-
-    local function win_showing_buf(buf)
-      for _, win in ipairs(vim.api.nvim_list_wins()) do
-        if vim.api.nvim_win_get_buf(win) == buf then
-          return win
-        end
-      end
-      return nil
-    end
-
-    local function resize_half(win)
-      if not win or not vim.api.nvim_win_is_valid(win) then return end
-      local target = math.floor(vim.o.columns / 2)
-      if target < 20 then return end
-      pcall(vim.api.nvim_win_call, win, function()
-        vim.cmd("vertical resize " .. target)
-      end)
-    end
-
-    local function show_buf_on_right(buf)
-      if not buf_is_valid(buf) then return end
-      local existing = win_showing_buf(buf)
-      if existing then
-        resize_half(existing)
-        return
-      end
-      local curwin = vim.api.nvim_get_current_win()
-      vim.cmd("vsplit")
-      vim.cmd("wincmd l")
-      local w = vim.api.nvim_get_current_win()
-      vim.api.nvim_win_set_buf(w, buf)
-      resize_half(w)
-      vim.api.nvim_set_current_win(curwin)
-    end
-
     local function find_existing_radian()
       for _, buf in ipairs(vim.api.nvim_list_bufs()) do
         if vim.bo[buf].buftype == "terminal" then
           local name = (vim.api.nvim_buf_get_name(buf) or ""):lower()
-          if name:match("radian") or name:match("%f[%w]r%f[%W]") then
+          if name:match("radian") then
             local jobid = vim.b[buf].terminal_job_id
             if is_job_alive(jobid) then
               return jobid, buf
@@ -463,36 +483,25 @@ au("FileType", {
 
     local function ensure_r_repl()
       local jobid = vim.g.repl_jobid_r
-      local buf   = vim.g.repl_bufnr_r
-
       if is_job_alive(jobid) then
-        if buf_is_valid(buf) then show_buf_on_right(buf) end
         return jobid
       end
 
-      local found_job, found_buf = find_existing_radian()
+      local found_job = select(1, find_existing_radian())
       if is_job_alive(found_job) then
         vim.g.repl_jobid_r = found_job
-        vim.g.repl_bufnr_r = found_buf
-        if buf_is_valid(found_buf) then show_buf_on_right(found_buf) end
         return found_job
       end
 
-      local curwin = vim.api.nvim_get_current_win()
+      -- start a new radian
       vim.cmd("vsplit")
       vim.cmd("wincmd l")
-      local repl_win = vim.api.nvim_get_current_win()
-      resize_half(repl_win)
-
       vim.cmd("terminal radian")
-
       local new_job = vim.b.terminal_job_id
-      local new_buf = vim.api.nvim_get_current_buf()
-      vim.api.nvim_set_current_win(curwin)
+      vim.cmd("wincmd h")
 
       if is_job_alive(new_job) then
         vim.g.repl_jobid_r = new_job
-        vim.g.repl_bufnr_r = new_buf
         return new_job
       end
 
@@ -500,7 +509,7 @@ au("FileType", {
     end
 
     -----------------------------------------------------------------
-    -- 4) Bracketed-paste sender (prevents line-by-line execution)
+    -- 4) Bracketed-paste sender
     -----------------------------------------------------------------
     local function send_to_r(text)
       local jobid = ensure_r_repl()
@@ -511,16 +520,14 @@ au("FileType", {
 
       if not text:match("\n$") then text = text .. "\n" end
 
-      -- Bracketed paste sequences
       local PASTE_START = "\27[200~"
       local PASTE_END   = "\27[201~"
 
-      -- Paste as one block, then execute with one final newline
       pcall(vim.api.nvim_chan_send, jobid, PASTE_START .. text .. PASTE_END .. "\n")
     end
 
     -----------------------------------------------------------------
-    -- 5) ⌥Enter: Run chunk as expressions (each expression may be multi-line)
+    -- 5) ⌥Enter: Run chunk as expressions
     -----------------------------------------------------------------
     local function run_chunk_as_expressions()
       local body_lines = chunk_lines_between_fences()
@@ -540,8 +547,6 @@ au("FileType", {
       end
     end
 
-
-
     -----------------------------------------------------------------
     -- 6) Keymaps
     -----------------------------------------------------------------
@@ -549,43 +554,34 @@ au("FileType", {
       vim.cmd("stopinsert")
       run_chunk_as_expressions()
     end, "Rmd: Send chunk as logical expressions (Option+Enter)")
-
-
   end,
 })
 
 ---------------------------------------------------------------------
 -- R Markdown (.Rmd/.qmd): Cmd+I → Insert R code chunk
 ---------------------------------------------------------------------
-
 au("FileType", {
   group = aug("RmdChunkInsert", { clear = true }),
   pattern = { "rmd", "quarto" },
   callback = function(ev)
     vim.keymap.set({ "n", "i" }, "<D-I>", function()
-      -- leave insert mode if needed
       vim.cmd("stopinsert")
 
       local win = 0
       local buf = ev.buf
-      local row = vim.api.nvim_win_get_cursor(win)[1] -- 1-indexed
+      local row = vim.api.nvim_win_get_cursor(win)[1]
 
-      -- Insert chunk *below* current line
       vim.api.nvim_buf_set_lines(buf, row, row, true, {
         "```{r}",
         "",
         "```",
       })
 
-      -- Put cursor on the blank line inside the chunk
       vim.api.nvim_win_set_cursor(win, { row + 2, 0 })
-
-      -- optional: start typing immediately
       vim.cmd("startinsert")
     end, { buffer = ev.buf, silent = true, desc = "Insert R code chunk (Cmd+Shift+I)" })
   end,
 })
-
 
 ---------------------------------------------------------------------
 -- R Markdown (.Rmd/.qmd): Cmd+Shift+K → Save, Knit, then Open
