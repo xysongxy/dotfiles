@@ -581,14 +581,44 @@ local function send_current_and_advance(lang)
 end
 
 local function send_visual_selection(lang)
-  local s = vim.fn.getpos("'<")[2]
-  local e = vim.fn.getpos("'>")[2]
-  local lines = vim.api.nvim_buf_get_lines(0, s - 1, e, false)
-  if #lines == 0 then
+  local bufnr = vim.api.nvim_get_current_buf()
+
+  -- live selection bounds
+  local vpos = vim.fn.getpos("v")
+  local cpos = vim.fn.getpos(".")
+
+  local srow, scol = vpos[2] - 1, vpos[3] - 1
+  local erow, ecol = cpos[2] - 1, cpos[3] - 1
+
+  -- normalize order
+  if erow < srow or (erow == srow and ecol < scol) then
+    srow, erow = erow, srow
+    scol, ecol = ecol, scol
+  end
+
+  local vmode = vim.fn.visualmode()
+  local text = ""
+
+  if vmode == "V" then
+    -- linewise selection
+    local lines = vim.api.nvim_buf_get_lines(bufnr, srow, erow + 1, false)
+    text = table.concat(lines, "\n")
+  elseif vmode == "\22" then
+    vim.notify("Blockwise visual not supported", vim.log.levels.WARN)
+    return
+  else
+    -- charwise selection
+    local lines = vim.api.nvim_buf_get_text(bufnr, srow, scol, erow, ecol + 1, {})
+    text = table.concat(lines, "\n")
+  end
+
+  if text:gsub("%s+", "") == "" then
     return
   end
-  send_to_repl(lang, table.concat(lines, "\n"))
+
+  send_to_repl(lang, text)
 end
+
 
 -----------------------------------------------------------------------
 -- Setup
@@ -633,20 +663,18 @@ function M.setup()
       local opts = { buffer = ev.buf, silent = true }
 
       -- ⌘ + Enter: run current expression (R/python) / current line (others) and advance
-      vim.keymap.set("n", "<D-CR>", function()
-        send_current_and_advance(lang)
-      end, opts)
-
-
       vim.keymap.set("x", "<D-CR>", function()
-        -- leave visual mode
+        -- send selection while still in visual mode
+        send_visual_selection(lang)
+
+        -- then exit visual mode
         vim.api.nvim_feedkeys(
           vim.api.nvim_replace_termcodes("<Esc>", true, false, true),
           "n",
-          true
+          false
         )
-        send_visual_selection(lang)
       end, opts)
+
 
       -- Open REPL explicitly (and show it if hidden)
       vim.keymap.set("n", "<localleader>rr", function()
