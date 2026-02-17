@@ -662,18 +662,21 @@ function M.setup()
 
       local opts = { buffer = ev.buf, silent = true }
 
-      -- ⌘ + Enter: run current expression (R/python) / current line (others) and advance
-      vim.keymap.set("x", "<D-CR>", function()
-        -- send selection while still in visual mode
-        send_visual_selection(lang)
+      -- ⌘ + Enter in NORMAL: run current expression (R/python) / current line (others) and advance
+      vim.keymap.set("n", "<D-CR>", function()
+        send_current_and_advance(lang)
+      end, opts)
 
-        -- then exit visual mode
+      -- ⌘ + Enter in VISUAL: run selection
+      vim.keymap.set("x", "<D-CR>", function()
+        send_visual_selection(lang)
         vim.api.nvim_feedkeys(
           vim.api.nvim_replace_termcodes("<Esc>", true, false, true),
           "n",
           false
         )
       end, opts)
+
 
 
       -- Open REPL explicitly (and show it if hidden)
