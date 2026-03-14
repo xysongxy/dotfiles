@@ -170,11 +170,7 @@ au("FileType", {
     end
 
     local function insert_text(txt)
-      if vim.fn.mode():match("i") then
-        vim.api.nvim_put({ txt }, "c", true, true)
-      else
-        vim.api.nvim_put({ txt }, "c", true, true)
-      end
+      vim.api.nvim_put({ txt }, "c", true, true)
     end
 
     -- ⌘⇧M → %>% (pipe)
@@ -336,10 +332,11 @@ au("FileType", {
 
 ---------------------------------------------------------------------
 -- R / RMarkdown / Quarto
--- Goal:
---   - ⌥Enter sends each *logical expression* in the current chunk
+-- Goals:
+--   - ⌥Enter sends each logical expression in the current chunk
 --     using bracketed paste (so it does NOT execute line-by-line)
 --   - Disable Cmd+Enter in INSERT (safety: if anything else mapped it)
+--   - Toggle radian terminal open/closed without killing the session
 ---------------------------------------------------------------------
 au("FileType", {
   group = aug("RKeymaps", { clear = true }),
@@ -421,7 +418,7 @@ au("FileType", {
     end
 
     -----------------------------------------------------------------
-    -- 2) Split lines into "logical expressions"
+    -- 2) Split lines into logical expressions
     -----------------------------------------------------------------
     local function split_into_expressions(body_lines)
       local exprs = {}
@@ -458,7 +455,7 @@ au("FileType", {
     end
 
     -----------------------------------------------------------------
-    -- 3) REPL management (radian in right split)
+    -- 3) REPL management (radian in right split) + toggle
     -----------------------------------------------------------------
     local function is_job_alive(jobid)
       if not jobid or jobid <= 0 then return false end
@@ -468,7 +465,7 @@ au("FileType", {
 
     local function find_existing_radian()
       for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-        if vim.bo[buf].buftype == "terminal" then
+        if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].buftype == "terminal" then
           local name = (vim.api.nvim_buf_get_name(buf) or ""):lower()
           if name:match("radian") then
             local jobid = vim.b[buf].terminal_job_id
@@ -481,15 +478,33 @@ au("FileType", {
       return nil, nil
     end
 
+    local function find_radian_window(bufnr)
+      if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then return nil end
+      for _, win in ipairs(vim.api.nvim_list_wins()) do
+        if vim.api.nvim_win_is_valid(win) and vim.api.nvim_win_get_buf(win) == bufnr then
+          return win
+        end
+      end
+      return nil
+    end
+
+    local function open_radian_in_split(bufnr)
+      vim.cmd("vsplit")
+      vim.cmd("wincmd l")
+      vim.api.nvim_win_set_buf(0, bufnr)
+      vim.cmd("startinsert")
+    end
+
     local function ensure_r_repl()
       local jobid = vim.g.repl_jobid_r
       if is_job_alive(jobid) then
         return jobid
       end
 
-      local found_job = select(1, find_existing_radian())
+      local found_job, found_buf = find_existing_radian()
       if is_job_alive(found_job) then
         vim.g.repl_jobid_r = found_job
+        vim.g.repl_buf_r = found_buf
         return found_job
       end
 
@@ -497,15 +512,63 @@ au("FileType", {
       vim.cmd("vsplit")
       vim.cmd("wincmd l")
       vim.cmd("terminal radian")
+
       local new_job = vim.b.terminal_job_id
+      local new_buf = vim.api.nvim_get_current_buf()
+
+      -- closing the window should hide the buffer, not kill the session
+      vim.bo[new_buf].bufhidden = "hide"
+
+      vim.g.repl_jobid_r = new_job
+      vim.g.repl_buf_r = new_buf
+
       vim.cmd("wincmd h")
 
       if is_job_alive(new_job) then
-        vim.g.repl_jobid_r = new_job
         return new_job
       end
 
       return nil
+    end
+
+    local function toggle_radian()
+      local _, buf = find_existing_radian()
+
+      -- No running radian: start one
+      if not buf then
+        local jobid = ensure_r_repl()
+        if not jobid then
+          vim.notify("Could not start radian REPL", vim.log.levels.ERROR)
+        end
+        return
+      end
+
+      local win = find_radian_window(buf)
+
+      -- If visible: close window only, keep session alive
+      if win then
+        local wins = vim.api.nvim_list_wins()
+        if #wins <= 1 then
+          vim.notify("Cannot close the only window", vim.log.levels.WARN)
+          return
+        end
+
+        local curwin = vim.api.nvim_get_current_win()
+        if curwin == win then
+          vim.cmd("wincmd p")
+        end
+
+        pcall(vim.api.nvim_win_close, win, true)
+        return
+      end
+
+      -- If hidden but alive: reopen existing buffer
+      open_radian_in_split(buf)
+      vim.g.repl_buf_r = buf
+      local jobid = vim.b[buf].terminal_job_id
+      if is_job_alive(jobid) then
+        vim.g.repl_jobid_r = jobid
+      end
     end
 
     -----------------------------------------------------------------
@@ -518,7 +581,9 @@ au("FileType", {
         return
       end
 
-      if not text:match("\n$") then text = text .. "\n" end
+      if not text:match("\n$") then
+        text = text .. "\n"
+      end
 
       local PASTE_START = "\27[200~"
       local PASTE_END   = "\27[201~"
@@ -554,6 +619,10 @@ au("FileType", {
       vim.cmd("stopinsert")
       run_chunk_as_expressions()
     end, "Rmd: Send chunk as logical expressions (Option+Enter)")
+
+    bmap("n", "<leader>rr", function()
+      toggle_radian()
+    end, "R: Toggle radian terminal")
   end,
 })
 
