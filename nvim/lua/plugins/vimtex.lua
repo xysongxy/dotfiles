@@ -33,6 +33,7 @@ vim.g.vimtex_compiler_latexmk = {
     "-synctex=1",
     "-interaction=nonstopmode",
     "-file-line-error",
+    "-shell-escape",
     "-time",
   },
   engines = { _ = "-pdf" },
@@ -63,6 +64,7 @@ local function set_shell_escape(on)
     "-synctex=1",
     "-interaction=nonstopmode",
     "-file-line-error",
+    "-time",
   }
   if on then
     table.insert(base, "-shell-escape")
