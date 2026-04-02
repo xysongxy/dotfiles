@@ -31,10 +31,10 @@ map("n", "<C-j>", "<C-w>j", { desc = "Go down" })
 map("n", "<C-k>", "<C-w>k", { desc = "Go up" })
 map("n", "<C-l>", "<C-w>l", { desc = "Go right" })
 
-map("n", "<A-Left>",  "<cmd>vertical resize -2<cr>", { desc = "Resize left" })
-map("n", "<A-Right>", "<cmd>vertical resize +2<cr>", { desc = "Resize right" })
-map("n", "<A-Up>",    "<cmd>resize +2<cr>",          { desc = "Resize up" })
-map("n", "<A-Down>",  "<cmd>resize -2<cr>",          { desc = "Resize down" })
+map("n", "<C-S-Left>",  "<cmd>vertical resize -2<cr>", { desc = "Resize left" })
+map("n", "<C-S-Right>", "<cmd>vertical resize +2<cr>", { desc = "Resize right" })
+map("n", "<C-S-Up>",    "<cmd>resize +2<cr>",          { desc = "Resize up" })
+map("n", "<C-S-Down>",  "<cmd>resize -2<cr>",          { desc = "Resize down" })
 
 -- Better wrapped-line movement
 map("n", "j", "gj", { silent = true })

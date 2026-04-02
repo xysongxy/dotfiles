@@ -72,3 +72,5 @@ theme = nord
 custom-shader-animation        = always
 
 custom-shader                  = shaders/cursor_blaze.glsl
+
+macos-option-as-alt = true
