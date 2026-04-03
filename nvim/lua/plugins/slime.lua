@@ -23,26 +23,48 @@ local function resize_win_to_half(win)
   end)
 end
 
+local function create_right_split_and_get_new_win()
+  local before = vim.api.nvim_list_wins()
+  local before_set = {}
+  for _, w in ipairs(before) do
+    before_set[w] = true
+  end
+
+  vim.cmd("rightbelow vsplit")
+
+  local after = vim.api.nvim_list_wins()
+  for _, w in ipairs(after) do
+    if not before_set[w] then
+      return w
+    end
+  end
+
+  return nil
+end
+
 local function open_right_term(cmd)
   -- Open a right split terminal, but keep focus in the original window.
   local curwin = vim.api.nvim_get_current_win()
+  local repl_win = create_right_split_and_get_new_win()
 
-  vim.cmd("vsplit")
-  vim.cmd("wincmd l")
-  local repl_win = vim.api.nvim_get_current_win()
+  if not repl_win or not vim.api.nvim_win_is_valid(repl_win) then
+    vim.notify("Could not create REPL split", vim.log.levels.ERROR)
+    return nil, nil
+  end
 
-  -- IMPORTANT:
-  -- vsplit duplicates the current buffer into the new window.
-  -- If the current file is modified, :terminal cannot reuse that buffer.
-  -- So create a fresh empty buffer first.
-  vim.cmd("enew!")
+  -- Work only inside the new split
+  vim.api.nvim_win_call(repl_win, function()
+    -- vsplit duplicates the current buffer into the new window.
+    -- If the current file is modified, :terminal cannot reuse it.
+    -- So create a fresh empty buffer first.
+    vim.cmd("enew!")
+    vim.cmd("terminal " .. cmd)
+  end)
 
   resize_win_to_half(repl_win)
 
-  vim.cmd("terminal " .. cmd)
-
-  local jobid = vim.b.terminal_job_id
-  local term_buf = vim.api.nvim_get_current_buf()
+  local term_buf = vim.api.nvim_win_get_buf(repl_win)
+  local jobid = vim.b[term_buf].terminal_job_id
 
   -- Return focus to script window
   vim.api.nvim_set_current_win(curwin)
@@ -153,6 +175,7 @@ local function starts_with_operator_or_pipe_r(line)
 end
 
 local function r_expression_bounds(bufnr, row)
+  -- row is 1-indexed
   local ft = vim.bo[bufnr].filetype
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
   local n = #lines
@@ -251,6 +274,7 @@ local function py_indent(line)
 end
 
 local function py_expression_bounds(bufnr, row)
+  -- row is 1-indexed
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
   local n = #lines
   if n == 0 then
@@ -388,21 +412,24 @@ local function show_repl_buffer_on_right(buf)
   end
 
   local curwin = vim.api.nvim_get_current_win()
+  local repl_win = create_right_split_and_get_new_win()
 
-  vim.cmd("vsplit")
-  vim.cmd("wincmd l")
-  local repl_win = vim.api.nvim_get_current_win()
+  if not repl_win or not vim.api.nvim_win_is_valid(repl_win) then
+    vim.notify("Could not create REPL split", vim.log.levels.ERROR)
+    return nil
+  end
 
-  -- Make sure the new split is not still showing a modified source buffer.
-  vim.cmd("enew!")
-  vim.api.nvim_win_set_buf(repl_win, buf)
+  vim.api.nvim_win_call(repl_win, function()
+    vim.cmd("enew!")
+    vim.api.nvim_win_set_buf(repl_win, buf)
+  end)
 
   resize_win_to_half(repl_win)
-
   vim.api.nvim_set_current_win(curwin)
   return repl_win
 end
 
+-- Find an existing terminal buffer whose name contains a token
 local function find_term_jobid(token)
   token = token:lower()
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
@@ -681,10 +708,12 @@ function M.setup()
 
       local opts = { buffer = ev.buf, silent = true }
 
+      -- ⌘ + Enter in NORMAL: run current expression (R/python) / current line (others) and advance
       vim.keymap.set("n", "<D-CR>", function()
         send_current_and_advance(lang)
       end, opts)
 
+      -- ⌘ + Enter in VISUAL: run selection
       vim.keymap.set("x", "<D-CR>", function()
         send_visual_selection(lang)
         vim.api.nvim_feedkeys(
@@ -694,10 +723,12 @@ function M.setup()
         )
       end, opts)
 
+      -- Open REPL explicitly (and show it if hidden)
       vim.keymap.set("n", "<localleader>rr", function()
         ensure_repl(lang)
       end, vim.tbl_extend("force", opts, { desc = "Open REPL on right" }))
 
+      -- Clear REPL target
       vim.keymap.set("n", "<localleader>rR", function()
         set_jobid(lang, nil)
         set_bufnr(lang, nil)
