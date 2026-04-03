@@ -699,16 +699,27 @@ au("FileType", {
       vim.keymap.set("n", lhs, fn, { buffer = true, silent = true, desc = desc })
     end
 
+    -- Detect if file contains non-ASCII characters that need xelatex
+    local function needs_xelatex(filepath)
+      local f = io.open(filepath, "r")
+      if not f then return false end
+      local content = f:read("*a")
+      f:close()
+      return content:match("[\194-\244][\128-\191]") ~= nil
+    end
+
     -- ⌘⇧K → Save + Pandoc PDF (article)
     map("<D-K>", function()
       vim.cmd("write")
 
-      local inpath  = vim.fn.shellescape(vim.fn.expand("%:p"))
+      local filepath = vim.fn.expand("%:p")
+      local inpath  = vim.fn.shellescape(filepath)
       local outpath = vim.fn.shellescape(vim.fn.expand("%:p:r") .. ".pdf")
+      local engine = needs_xelatex(filepath) and "xelatex" or "pdflatex"
 
       vim.cmd("silent !pandoc -f markdown " .. inpath ..
               " -o " .. outpath ..
-              " --pdf-engine=pdflatex")
+              " --pdf-engine=" .. engine)
 
       if vim.v.shell_error == 0 then
         vim.cmd("redraw!")
@@ -722,13 +733,15 @@ au("FileType", {
     map("<D-B>", function()
       vim.cmd("write")
 
-      local inpath  = vim.fn.shellescape(vim.fn.expand("%:p"))
+      local filepath = vim.fn.expand("%:p")
+      local inpath  = vim.fn.shellescape(filepath)
       local outpath = vim.fn.shellescape(vim.fn.expand("%:p:r") .. "-slides.pdf")
+      local engine = needs_xelatex(filepath) and "xelatex" or "pdflatex"
 
       vim.cmd("silent !pandoc -f markdown " .. inpath ..
               " -t beamer" ..
               " -o " .. outpath ..
-              " --pdf-engine=pdflatex")
+              " --pdf-engine=" .. engine)
 
       if vim.v.shell_error == 0 then
         vim.cmd("redraw!")
