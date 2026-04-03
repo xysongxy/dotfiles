@@ -5,7 +5,6 @@ local M = {}
 -- Helpers
 -----------------------------------------------------------------------
 local function half_width()
-  -- Total columns of the current UI (your Ghostty terminal width when using TUI)
   return math.floor(vim.o.columns / 2)
 end
 
@@ -13,22 +12,31 @@ local function resize_win_to_half(win)
   if not win or not vim.api.nvim_win_is_valid(win) then
     return
   end
+
   local target = half_width()
   if target < 20 then
     return
   end
+
   pcall(vim.api.nvim_win_call, win, function()
     vim.cmd("vertical resize " .. target)
   end)
 end
 
 local function open_right_term(cmd)
-  -- Open a right split terminal, but keep focus in the original (script) window.
+  -- Open a right split terminal, but keep focus in the original window.
   local curwin = vim.api.nvim_get_current_win()
 
   vim.cmd("vsplit")
   vim.cmd("wincmd l")
   local repl_win = vim.api.nvim_get_current_win()
+
+  -- IMPORTANT:
+  -- vsplit duplicates the current buffer into the new window.
+  -- If the current file is modified, :terminal cannot reuse that buffer.
+  -- So create a fresh empty buffer first.
+  vim.cmd("enew!")
+
   resize_win_to_half(repl_win)
 
   vim.cmd("terminal " .. cmd)
@@ -57,17 +65,14 @@ local function is_blank(line)
 end
 
 local function is_comment(line, _lang)
-  -- both R and python use '#'
   return line:match("^%s*#") ~= nil
 end
 
 local function is_chunk_fence(line)
-  -- Rmd/Quarto fences like ```{r} or ``` or ```{python}
   return line:match("^%s*```") ~= nil
 end
 
 local function is_yaml_fence(line)
-  -- Quarto/YAML front matter: ---
   return line:match("^%s*%-%-%-%s*$") ~= nil
 end
 
@@ -92,9 +97,7 @@ end
 -- R "logical expression" helpers (for ⌘Enter)
 -----------------------------------------------------------------------
 local function strip_strings_and_comments(line)
-  -- remove comments (naive but practical)
   line = line:gsub("#.*$", "")
-  -- remove quoted strings to avoid counting brackets inside them
   line = line:gsub([["([^"\\]|\\.)*"]], [[""]])
   line = line:gsub([['([^'\\]|\\.)*']], [[""]])
   return line
@@ -115,30 +118,47 @@ end
 local function looks_like_continuation_r(line)
   line = strip_strings_and_comments(line)
   local s = line:match("^%s*(.-)%s*$") or ""
-  if s == "" then return false end
+  if s == "" then
+    return false
+  end
 
-  if s:match("[,%+%-%*/%^=]$") then return true end
-  if s:match("<%-%s*$") or s:match("=%s*$") then return true end
-  if s:match("%%>%%%s*$") or s:match("|>%s*$") then return true end
-  if s:match("%($") or s:match("%[$") or s:match("%{$") then return true end
+  if s:match("[,%+%-%*/%^=]$") then
+    return true
+  end
+  if s:match("<%-%s*$") or s:match("=%s*$") then
+    return true
+  end
+  if s:match("%%>%%%s*$") or s:match("|>%s*$") then
+    return true
+  end
+  if s:match("%($") or s:match("%[$") or s:match("%{$") then
+    return true
+  end
 
   return false
 end
 
 local function starts_with_operator_or_pipe_r(line)
   local s = (line:match("^%s*(.-)%s*$") or "")
-  if s:match("^[%+%-%*/%^,]") then return true end
-  if s:match("^%%>%%") or s:match("^|>") then return true end
-  if s:match("^%$") or s:match("^@") then return true end
+  if s:match("^[%+%-%*/%^,]") then
+    return true
+  end
+  if s:match("^%%>%%") or s:match("^|>") then
+    return true
+  end
+  if s:match("^%$") or s:match("^@") then
+    return true
+  end
   return false
 end
 
 local function r_expression_bounds(bufnr, row)
-  -- row is 1-indexed
   local ft = vim.bo[bufnr].filetype
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
   local n = #lines
-  if n == 0 then return nil end
+  if n == 0 then
+    return nil
+  end
 
   local line = lines[row] or ""
   if is_blank(line)
@@ -150,11 +170,10 @@ local function r_expression_bounds(bufnr, row)
 
   local start_line = row
 
-  -- if current line begins with operator/pipe, include previous lines
   while start_line > 1 and starts_with_operator_or_pipe_r(lines[start_line]) do
     start_line = start_line - 1
   end
-  -- if previous line continues, keep walking up
+
   while start_line > 1 and looks_like_continuation_r(lines[start_line - 1]) do
     start_line = start_line - 1
   end
@@ -168,7 +187,9 @@ local function r_expression_bounds(bufnr, row)
   while end_line < n and (bal > 0 or looks_like_continuation_r(lines[end_line])) do
     end_line = end_line + 1
     bal = bal + balance_delta(lines[end_line])
-    if end_line - start_line > 400 then break end
+    if end_line - start_line > 400 then
+      break
+    end
   end
 
   return start_line, end_line
@@ -178,14 +199,9 @@ end
 -- Python "logical expression" helpers (for ⌘Enter)
 -----------------------------------------------------------------------
 local function strip_py_strings_and_comments(line)
-  -- remove comments (naive but practical)
   line = line:gsub("#.*$", "")
-
-  -- remove triple quotes (single line cases)
   line = line:gsub([[""".-"""]], [[""]])
   line = line:gsub([['''.-''']], [[""]])
-
-  -- remove normal strings
   line = line:gsub([["([^"\\]|\\.)*"]], [[""]])
   line = line:gsub([['([^'\\]|\\.)*']], [[""]])
   return line
@@ -206,11 +222,21 @@ end
 local function py_line_ends_with_op(line)
   line = strip_py_strings_and_comments(line)
   local s = line:match("^%s*(.-)%s*$") or ""
-  if s == "" then return false end
-  if s:match("[,%+%-%*/%^=]$") then return true end
-  if s:match(":%s*$") then return true end
-  if s:match("%(%s*$") or s:match("%[%s*$") or s:match("%{%s*$") then return true end
-  if s:match("\\%s*$") then return true end -- explicit line continuation
+  if s == "" then
+    return false
+  end
+  if s:match("[,%+%-%*/%^=]$") then
+    return true
+  end
+  if s:match(":%s*$") then
+    return true
+  end
+  if s:match("%(%s*$") or s:match("%[%s*$") or s:match("%{%s*$") then
+    return true
+  end
+  if s:match("\\%s*$") then
+    return true
+  end
   return false
 end
 
@@ -225,34 +251,34 @@ local function py_indent(line)
 end
 
 local function py_expression_bounds(bufnr, row)
-  -- row is 1-indexed
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
   local n = #lines
-  if n == 0 then return nil end
+  if n == 0 then
+    return nil
+  end
 
   local line = lines[row] or ""
   if is_blank(line) or is_comment(line, "python") then
     return nil
   end
 
-  -- Find start: walk up while previous line is clearly a continuation
   local start_line = row
   local bal = py_balance_delta(lines[start_line])
 
   while start_line > 1 do
     local prev = lines[start_line - 1] or ""
-    if is_blank(prev) then break end
+    if is_blank(prev) then
+      break
+    end
 
     local prev_bal = py_balance_delta(prev)
     local prev_cont = py_line_ends_with_op(prev) or (prev:match("\\%s*$") ~= nil)
     local cur_indent = py_indent(lines[start_line])
     local prev_indent = py_indent(prev)
 
-    -- continuation via open brackets or explicit operator/line-continuation
     if bal > 0 or prev_cont then
       start_line = start_line - 1
       bal = bal + prev_bal
-    -- continuation via indentation (inside a block)
     elseif cur_indent > prev_indent and not py_is_block_header(prev) then
       start_line = start_line - 1
       bal = bal + prev_bal
@@ -261,7 +287,6 @@ local function py_expression_bounds(bufnr, row)
     end
   end
 
-  -- Find end: include following lines while we're inside brackets or inside an indented block
   local end_line = row
   bal = 0
   for i = start_line, end_line do
@@ -278,16 +303,16 @@ local function py_expression_bounds(bufnr, row)
   while end_line < n do
     local nxt = lines[end_line + 1] or ""
     if is_blank(nxt) then
-      if bal == 0 and not block_indent then break end
+      if bal == 0 and not block_indent then
+        break
+      end
       end_line = end_line + 1
     else
       local nxt_indent = py_indent(nxt)
 
-      -- if in brackets, always continue
       if bal > 0 then
         end_line = end_line + 1
         bal = bal + py_balance_delta(lines[end_line])
-      -- if we started a block header, include indented block
       elseif py_is_block_header(lines[end_line]) then
         block_indent = py_indent(lines[end_line]) + 1
         end_line = end_line + 1
@@ -295,7 +320,6 @@ local function py_expression_bounds(bufnr, row)
       elseif block_indent and nxt_indent >= block_indent then
         end_line = end_line + 1
         bal = bal + py_balance_delta(lines[end_line])
-      -- line continuation with trailing operator / backslash
       elseif py_line_ends_with_op(lines[end_line]) then
         end_line = end_line + 1
         bal = bal + py_balance_delta(lines[end_line])
@@ -304,7 +328,9 @@ local function py_expression_bounds(bufnr, row)
       end
     end
 
-    if end_line - start_line > 600 then break end
+    if end_line - start_line > 600 then
+      break
+    end
   end
 
   return start_line, end_line
@@ -351,7 +377,6 @@ local function win_showing_buf(buf)
 end
 
 local function show_repl_buffer_on_right(buf)
-  -- If already visible, do nothing (but still enforce width).
   if not buf_is_valid(buf) then
     return nil
   end
@@ -362,20 +387,22 @@ local function show_repl_buffer_on_right(buf)
     return existing
   end
 
-  -- Open right split showing that buffer, but keep focus in current window.
   local curwin = vim.api.nvim_get_current_win()
 
   vim.cmd("vsplit")
   vim.cmd("wincmd l")
   local repl_win = vim.api.nvim_get_current_win()
+
+  -- Make sure the new split is not still showing a modified source buffer.
+  vim.cmd("enew!")
   vim.api.nvim_win_set_buf(repl_win, buf)
+
   resize_win_to_half(repl_win)
 
   vim.api.nvim_set_current_win(curwin)
   return repl_win
 end
 
--- Find an existing terminal buffer whose name contains a token
 local function find_term_jobid(token)
   token = token:lower()
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
@@ -398,10 +425,7 @@ end
 local function ensure_repl(lang)
   local jobid = get_jobid(lang)
 
-  -- If we have a cached jobid, verify it is still alive
   if is_job_alive(jobid) then
-    -- If user :q closed the terminal WINDOW, the REPL is still alive
-    -- but not visible; show it again without stealing focus, and enforce width.
     local buf = get_bufnr(lang)
     if buf_is_valid(buf) then
       show_repl_buffer_on_right(buf)
@@ -409,11 +433,9 @@ local function ensure_repl(lang)
     return jobid
   end
 
-  -- cached job is dead -> clear it
   set_jobid(lang, nil)
   set_bufnr(lang, nil)
 
-  -- Try to discover an existing live terminal (in case user started it manually)
   local found_job, found_buf
   if lang == "r" then
     found_job, found_buf = find_term_jobid("radian")
@@ -439,7 +461,6 @@ local function ensure_repl(lang)
     return found_job
   end
 
-  -- Otherwise start a new one on the right (and KEEP focus in script)
   local new_jobid, term_buf
   if lang == "r" then
     new_jobid, term_buf = open_right_term("radian")
@@ -461,15 +482,20 @@ end
 -----------------------------------------------------------------------
 local function scroll_repl_to_bottom(lang)
   local buf = get_bufnr(lang)
-  if not buf_is_valid(buf) then return end
+  if not buf_is_valid(buf) then
+    return
+  end
 
   local win = win_showing_buf(buf)
-  if not win then return end
+  if not win then
+    return
+  end
 
   local last = vim.api.nvim_buf_line_count(buf)
-  if last < 1 then return end
+  if last < 1 then
+    return
+  end
 
-  -- Move cursor + scroll to bottom inside that window without stealing focus
   pcall(vim.api.nvim_win_call, win, function()
     pcall(vim.api.nvim_win_set_cursor, win, { last, 0 })
     vim.cmd("normal! G")
@@ -478,9 +504,13 @@ local function scroll_repl_to_bottom(lang)
 end
 
 local function follow_repl(lang)
-  -- terminal output is async; do it after it lands
-  vim.defer_fn(function() scroll_repl_to_bottom(lang) end, 20)
-  vim.defer_fn(function() scroll_repl_to_bottom(lang) end, 80)
+  vim.defer_fn(function()
+    scroll_repl_to_bottom(lang)
+  end, 20)
+
+  vim.defer_fn(function()
+    scroll_repl_to_bottom(lang)
+  end, 80)
 end
 
 -----------------------------------------------------------------------
@@ -500,13 +530,10 @@ local function send_to_repl(lang, text)
     text = text .. "\n"
   end
 
-  -- Bracketed paste so multi-line expressions don't behave like line-by-line typing
   local PASTE_START = "\27[200~"
-  local PASTE_END   = "\27[201~"
-
+  local PASTE_END = "\27[201~"
   local payload = PASTE_START .. text .. PASTE_END .. "\n"
 
-  -- Send, but tolerate rare race where channel dies after ensure_repl
   local ok = pcall(vim.api.nvim_chan_send, jobid, payload)
   if ok then
     follow_repl(lang)
@@ -515,6 +542,7 @@ local function send_to_repl(lang, text)
 
   set_jobid(lang, nil)
   set_bufnr(lang, nil)
+
   jobid = ensure_repl(lang)
   if jobid then
     local ok2 = pcall(vim.api.nvim_chan_send, jobid, payload)
@@ -562,7 +590,6 @@ local function send_current_and_advance(lang)
     return
   end
 
-  -- default: original behavior (line-based)
   local line = vim.api.nvim_get_current_line()
 
   if is_blank(line)
@@ -583,14 +610,12 @@ end
 local function send_visual_selection(lang)
   local bufnr = vim.api.nvim_get_current_buf()
 
-  -- live selection bounds
   local vpos = vim.fn.getpos("v")
   local cpos = vim.fn.getpos(".")
 
   local srow, scol = vpos[2] - 1, vpos[3] - 1
   local erow, ecol = cpos[2] - 1, cpos[3] - 1
 
-  -- normalize order
   if erow < srow or (erow == srow and ecol < scol) then
     srow, erow = erow, srow
     scol, ecol = ecol, scol
@@ -600,14 +625,12 @@ local function send_visual_selection(lang)
   local text = ""
 
   if vmode == "V" then
-    -- linewise selection
     local lines = vim.api.nvim_buf_get_lines(bufnr, srow, erow + 1, false)
     text = table.concat(lines, "\n")
   elseif vmode == "\22" then
     vim.notify("Blockwise visual not supported", vim.log.levels.WARN)
     return
   else
-    -- charwise selection
     local lines = vim.api.nvim_buf_get_text(bufnr, srow, scol, erow, ecol + 1, {})
     text = table.concat(lines, "\n")
   end
@@ -619,12 +642,10 @@ local function send_visual_selection(lang)
   send_to_repl(lang, text)
 end
 
-
 -----------------------------------------------------------------------
 -- Setup
 -----------------------------------------------------------------------
 function M.setup()
-  -- Auto-clear cached repl targets when their terminal buffer closes (job actually exits)
   vim.api.nvim_create_autocmd("TermClose", {
     callback = function(ev)
       for _, lang in ipairs({ "r", "python" }) do
@@ -636,8 +657,6 @@ function M.setup()
     end,
   })
 
-  -- Always keep REPL exactly half-width when the UI is resized.
-  -- (VimResized fires when terminal window changes size.)
   vim.api.nvim_create_autocmd("VimResized", {
     callback = function()
       for _, lang in ipairs({ "r", "python" }) do
@@ -662,12 +681,10 @@ function M.setup()
 
       local opts = { buffer = ev.buf, silent = true }
 
-      -- ⌘ + Enter in NORMAL: run current expression (R/python) / current line (others) and advance
       vim.keymap.set("n", "<D-CR>", function()
         send_current_and_advance(lang)
       end, opts)
 
-      -- ⌘ + Enter in VISUAL: run selection
       vim.keymap.set("x", "<D-CR>", function()
         send_visual_selection(lang)
         vim.api.nvim_feedkeys(
@@ -677,14 +694,10 @@ function M.setup()
         )
       end, opts)
 
-
-
-      -- Open REPL explicitly (and show it if hidden)
       vim.keymap.set("n", "<localleader>rr", function()
         ensure_repl(lang)
       end, vim.tbl_extend("force", opts, { desc = "Open REPL on right" }))
 
-      -- Clear REPL target
       vim.keymap.set("n", "<localleader>rR", function()
         set_jobid(lang, nil)
         set_bufnr(lang, nil)
