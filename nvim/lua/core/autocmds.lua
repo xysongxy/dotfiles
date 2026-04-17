@@ -705,6 +705,7 @@ au("FileType", {
       if not f then return false end
       local content = f:read("*a")
       f:close()
+      if content:match("mathpazo") then return false end
       return content:match("[\194-\244][\128-\191]") ~= nil
     end
 
