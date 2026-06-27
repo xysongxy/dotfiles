@@ -375,7 +375,7 @@ require("lazy").setup({
   },
 
   ---------------------------------------------------------------------------
-  -- Supermaven 
+  -- Supermaven
   ---------------------------------------------------------------------------
   {
     "supermaven-inc/supermaven-nvim",
@@ -385,4 +385,24 @@ require("lazy").setup({
       require("plugins.ai").supermaven_setup()
     end,
   },
+
+  ---------------------------------------------------------------------------
+  -- Codex
+  ---------------------------------------------------------------------------
+  {
+    "anirudhsundar/codex.nvim",
+    config = function()
+      vim.g.codex_opts = {}
+
+      vim.o.autoread = true
+
+      vim.keymap.set({ "n", "x" }, "<leader>ca", function()
+        require("codex").ask("@this: ", { submit = true })
+      end, { desc = "Ask Codex" })
+
+      vim.keymap.set({ "n", "x" }, "<leader>cx", function()
+        require("codex").select()
+      end, { desc = "Codex action" })
+    end,
+  }
 })

@@ -190,3 +190,49 @@ map("n", "<leader>gc", safe_cmd("GeminiSwitchToCli"), { desc = "Gemini: Switch t
 map("x", "<leader>gS", safe_cmd("GeminiSend"), { desc = "Gemini: Send selection" })
 map("n", "<leader>ga", safe_cmd("GeminiAccept"), { desc = "Gemini: Accept diff" })
 map("n", "<leader>gd", safe_cmd("GeminiReject"), { desc = "Gemini: Reject diff" })
+
+-- Codex
+local function safe_codex(fn)
+  return function()
+    local ok, codex = pcall(require, "codex")
+    if not ok then
+      vim.notify("codex.nvim is not loaded", vim.log.levels.ERROR)
+      return
+    end
+    fn(codex)
+  end
+end
+
+map({ "n", "x" }, "<leader>xx", safe_codex(function(codex)
+  codex.select()
+end), { desc = "Codex: Select action" })
+
+map({ "n", "x" }, "<leader>xa", safe_codex(function(codex)
+  codex.ask("@this: ", { submit = true })
+end), { desc = "Codex: Ask about this" })
+
+map("n", "<leader>xb", safe_codex(function(codex)
+  codex.ask("@buffer: ", { submit = true })
+end), { desc = "Codex: Ask about buffer" })
+
+map("n", "<leader>xd", safe_codex(function(codex)
+  codex.ask("@diagnostics: ", { submit = true })
+end), { desc = "Codex: Ask about diagnostics" })
+
+map("n", "<leader>xp", safe_codex(function(codex)
+  codex.ask("")
+end), { desc = "Codex: Prompt" })
+
+map("x", "<leader>xs", safe_codex(function(codex)
+  codex.ask("@this: ", { submit = true })
+end), { desc = "Codex: Send selection" })
+
+map("n", "<leader>xo", function()
+  vim.cmd("botright vertical new")
+  local ok, codex = pcall(require, "codex")
+  if not ok then
+    vim.notify("codex.nvim is not loaded", vim.log.levels.ERROR)
+    return
+  end
+  codex.ask("")
+end, { desc = "Codex: Open right split" })
