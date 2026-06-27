@@ -384,25 +384,5 @@ require("lazy").setup({
       -- Your plugins/ai.lua should set accept_suggestion to something like <C-j>
       require("plugins.ai").supermaven_setup()
     end,
-  },
-
-  ---------------------------------------------------------------------------
-  -- Codex
-  ---------------------------------------------------------------------------
-  {
-    "anirudhsundar/codex.nvim",
-    config = function()
-      vim.g.codex_opts = {}
-
-      vim.o.autoread = true
-
-      vim.keymap.set({ "n", "x" }, "<leader>ca", function()
-        require("codex").ask("@this: ", { submit = true })
-      end, { desc = "Ask Codex" })
-
-      vim.keymap.set({ "n", "x" }, "<leader>cx", function()
-        require("codex").select()
-      end, { desc = "Codex action" })
-    end,
   }
 })
