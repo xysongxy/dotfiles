@@ -283,21 +283,13 @@
     "prefix": "tn",
     "body": [
       "---",
-      "author: Xiangyu Song",
+      "author: ",
       "tags: ",
       "created: ${CURRENT_YEAR}-${CURRENT_MONTH}-${CURRENT_DATE} ${CURRENT_HOUR}:${CURRENT_MINUTE}",
       "modified: ",
-      "output:",
-      "    pdf_document:",
-      "        latex_engine: pdflatex",
       "fontsize: 11pt",
       "header-includes:",
-      "    - \\\\usepackage{mathpazo}",
-      "    - \\\\usepackage{amsmath}",
-      "    - \\\\usepackage{geometry}",
-      "    - \\\\geometry{letterpaper, margin=1in}",
-      "    - \\\\usepackage{setspace}",
-      "    - \\\\doublespacing",
+      "    - \\\\usepackage[]{note}",
       "---"
     ],
     "description": "Note Template"
