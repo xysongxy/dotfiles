@@ -720,7 +720,8 @@ au("FileType", {
 
       vim.cmd("silent !pandoc -f markdown " .. inpath ..
               " -o " .. outpath ..
-              " --pdf-engine=" .. engine)
+              " --pdf-engine=" .. engine ..
+              " --citeproc") 
 
       if vim.v.shell_error == 0 then
         vim.cmd("redraw!")
@@ -742,7 +743,8 @@ au("FileType", {
       vim.cmd("silent !pandoc -f markdown " .. inpath ..
               " -t beamer" ..
               " -o " .. outpath ..
-              " --pdf-engine=" .. engine)
+              " --pdf-engine=" .. engine ..
+              " --citeproc") 
 
       if vim.v.shell_error == 0 then
         vim.cmd("redraw!")
