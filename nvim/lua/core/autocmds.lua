@@ -193,9 +193,9 @@ au("FileType", {
   pattern = { "r", "rmd", "rmarkdown", "quarto" },
   callback = function()
     vim.opt_local.expandtab = true
-    vim.opt_local.shiftwidth = 4
-    vim.opt_local.tabstop = 4
-    vim.opt_local.softtabstop = 4
+    vim.opt_local.shiftwidth = 2
+    vim.opt_local.tabstop = 2
+    vim.opt_local.softtabstop = 2
     vim.opt_local.autoindent = true
 
     -- keep your existing tweak
@@ -274,7 +274,7 @@ au("FileType", {
 
       local base_ws = line:match("^(%s*)") or ""
       local sw = vim.bo[bufnr].shiftwidth
-      if not sw or sw <= 0 then sw = 4 end
+      if not sw or sw <= 0 then sw = 2 end
       local inner_ws = base_ws .. string.rep(" ", sw)
 
       local last_before = before:sub(-1)
