@@ -21,6 +21,10 @@
       {
         "language": ["Rmarkdown", "rmarkdown"],
         "path": "./snippets/rmarkdown.json"
+      },
+      {
+        "language": ["rnoweb"],
+        "path": "./snippets/rsweave.json"
       }
     ]
   }

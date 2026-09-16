@@ -28,6 +28,9 @@ end)
 -- ✅ Make .Rmd (ft=rmd) use markdown snippets
 luasnip.filetype_extend("rmd", { "rmarkdown" })
 
+-- Make .Rnw (ft=rnoweb) use its own, LaTeX, and R snippets
+luasnip.filetype_extend("rnoweb", { "tex", "r" })
+
 -- ✅ Snippet jumping keys (do not fight blink's <Tab>)
 vim.keymap.set({ "i", "s" }, "<C-j>", function()
   if luasnip.expand_or_jumpable() then
