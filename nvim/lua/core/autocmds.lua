@@ -8,7 +8,7 @@ local au  = vim.api.nvim_create_autocmd
 au("TextYankPost", {
   group = aug("YankHighlight", { clear = true }),
   callback = function()
-    vim.highlight.on_yank({ timeout = 150 })
+    vim.hl.hl_op({ timeout = 150 })
   end,
 })
 
@@ -755,4 +755,3 @@ au("FileType", {
     end, "Pandoc → Beamer PDF")
   end,
 })
-
