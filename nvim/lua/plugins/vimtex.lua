@@ -48,7 +48,7 @@ vim.g.vimtex_view_automatic = 0  -- optional, but feels faster
 -- =========================
 -- QoL
 -- =========================
-vim.g.vimtex_fold_enabled = 0
+vim.g.vimtex_fold_enabled = 1
 vim.g.vimtex_clean_on_exit = 1
 
 -- =========================
