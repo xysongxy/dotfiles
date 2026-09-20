@@ -8,7 +8,7 @@ local au  = vim.api.nvim_create_autocmd
 au("TextYankPost", {
   group = aug("YankHighlight", { clear = true }),
   callback = function()
-    vim.hl.hl_op({ timeout = 150 })
+    vim.hl.on_yank({ timeout = 150 })
   end,
 })
 
