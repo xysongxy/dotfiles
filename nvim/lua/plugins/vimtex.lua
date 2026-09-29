@@ -97,6 +97,11 @@ end, opts)
 
 map("n", "<F6>", "<cmd>VimtexView<CR>", opts)
 map("n", "<F7>", "<cmd>VimtexClean<CR>", opts)
+map("n", "<leader>lc", "<cmd>VimtexClean<CR>", {
+  silent = true,
+  noremap = true,
+  desc = "LaTeX: Clean auxiliary files",
+})
 
 -- =========================
 -- Quickfix: open ONLY on errors, and move to right
