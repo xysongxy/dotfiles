@@ -355,6 +355,37 @@ require("lazy").setup({
   ---------------------------------------------------------------------------
   { "folke/snacks.nvim", event = "VeryLazy" },
 
+
+  {
+    "folke/sidekick.nvim",
+    cmd = "Sidekick",
+    opts = {
+      nes = { enabled = false },
+      cli = {
+        win = {
+          layout = "right",
+          config = function(terminal)
+            if terminal.tool.name == "codex" then
+              -- Keep mixed-key mapping tables out of serialized tool settings.
+              -- Single Esc goes to Codex; double Esc enters Normal mode.
+              terminal.opts.keys.escape = { "<Esc>", "<Esc>", mode = "t", desc = "Codex: Escape" }
+              terminal.opts.keys.normal_mode = { "<Esc><Esc>", "<C-\\><C-n>", mode = "t", desc = "Codex: Normal mode" }
+            end
+          end,
+        },
+      },
+    },
+    keys = {
+      {
+        "<leader>ac",
+        function()
+          require("sidekick.cli").toggle({ name = "codex", focus = true })
+        end,
+        desc = "Codex: Toggle terminal",
+      },
+    },
+  },
+
   {
     "coder/claudecode.nvim",
     event = "VeryLazy",
