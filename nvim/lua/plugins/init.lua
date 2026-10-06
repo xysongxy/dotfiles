@@ -84,11 +84,11 @@ require("lazy").setup({
   },
 
   ---------------------------------------------------------------------------
-  -- Treesitter (load when editing files)
+  -- Treesitter (the rewritten main branch does not support lazy-loading)
   ---------------------------------------------------------------------------
   {
     "nvim-treesitter/nvim-treesitter",
-    event = { "BufReadPre", "BufNewFile" },
+    lazy = false,
     build = ":TSUpdate",
     config = function()
       require("plugins.treesitter")
