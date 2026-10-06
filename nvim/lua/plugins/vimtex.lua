@@ -49,6 +49,34 @@ vim.g.vimtex_view_automatic = 0  -- optional, but feels faster
 -- QoL
 -- =========================
 vim.g.vimtex_fold_enabled = 1
+-- Keep one Appendix parent fold, with section folds beneath it.
+vim.g.vimtex_fold_types = {
+  sections = {
+    sections = {
+      "appendix",
+      "%(add)?part",
+      "%(chapter|addchap)",
+      "%(section|addsec)",
+      "subsection",
+      "subsubsection",
+    },
+    parts = { "frontmatter", "mainmatter", "backmatter" },
+  },
+}
+-- Main-text sections stay at the top level; appendix sections nest below it.
+vim.cmd([[
+function! PaperSectionFoldLevel(line, lnum) abort dict
+  call self.refresh()
+  for [pattern, level] in self.folds
+    if a:line =~# pattern
+      let has_appendix = match(getline(1, a:lnum), "^\\s*\\\\appendix\\>") >= 0
+      let appendix_level = !empty(self.folds) && self.folds[-1][0] =~# "appendix"
+      return ">" . (level - (appendix_level && !has_appendix ? 1 : 0))
+    endif
+  endfor
+endfunction
+let g:vimtex_fold_types.sections.level = function("PaperSectionFoldLevel")
+]])
 vim.g.vimtex_clean_on_exit = 1
 
 -- =========================
