@@ -505,39 +505,10 @@ local function ensure_repl(lang)
 end
 
 -----------------------------------------------------------------------
--- REPL follow (auto-scroll after multi-line sends)
+-- REPL follow (keep following delayed and streaming output)
 -----------------------------------------------------------------------
-local function scroll_repl_to_bottom(lang)
-  local buf = get_bufnr(lang)
-  if not buf_is_valid(buf) then
-    return
-  end
-
-  local win = win_showing_buf(buf)
-  if not win then
-    return
-  end
-
-  local last = vim.api.nvim_buf_line_count(buf)
-  if last < 1 then
-    return
-  end
-
-  pcall(vim.api.nvim_win_call, win, function()
-    pcall(vim.api.nvim_win_set_cursor, win, { last, 0 })
-    vim.cmd("normal! G")
-    vim.cmd("normal! zb")
-  end)
-end
-
 local function follow_repl(lang)
-  vim.defer_fn(function()
-    scroll_repl_to_bottom(lang)
-  end, 20)
-
-  vim.defer_fn(function()
-    scroll_repl_to_bottom(lang)
-  end, 80)
+  require("core.terminal").follow(get_bufnr(lang))
 end
 
 -----------------------------------------------------------------------
