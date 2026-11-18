@@ -64,7 +64,7 @@ window-padding-x = 5
 window-padding-y = 5
 
 font-family = "Monaco"
-font-size = 14
+font-size = 12
 
 theme = nord
 
