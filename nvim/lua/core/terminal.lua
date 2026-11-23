@@ -32,10 +32,8 @@ function M.follow(buf)
       local last = vim.api.nvim_buf_line_count(buf)
       for _, win in ipairs(vim.api.nvim_list_wins()) do
         if win ~= current and vim.api.nvim_win_get_buf(win) == buf then
-          vim.api.nvim_win_call(win, function()
-            vim.api.nvim_win_set_cursor(win, { last, 0 })
-            vim.cmd("normal! zb")
-          end)
+          -- Setting the cursor scrolls the window without leaving Terminal mode.
+          vim.api.nvim_win_set_cursor(win, { last, 0 })
         end
       end
     end)
